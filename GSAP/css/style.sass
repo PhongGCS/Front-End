@@ -1,0 +1,10 @@
+.title_bay_len {
+    font-size: 5rem;
+    overflow: hidden; /* Để chữ bay từ dưới lên mà không lộ */
+
+    .title_bay_len_char {
+        display: inline-block; /* Bắt buộc để dùng được transform (x, y, scale) */
+        transform: translateY(100%); /* Giấu chữ xuống dưới */
+    }
+}
+
