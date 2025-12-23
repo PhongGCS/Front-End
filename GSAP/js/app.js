@@ -57,6 +57,13 @@ const title004Animation = function(titleSelector) {
     
     // Bonus: bắt đầu từ giữa ra hoặc từ cuối lên nếu thích
   //   stagger: { each: 0.1, from: "center" } 
+    scrollTrigger: {
+        trigger: title,     // Element trigger là title
+        start: "top 80%",   // Khi top của title ở 80% viewport
+        end: "bottom 20%",  // Kết thúc khi bottom ở 20% viewport
+        toggleActions: "play none none reverse", // Play khi vào, reverse khi ra
+        // markers: true,   // Uncomment để debug
+    }
   });
 }
 
