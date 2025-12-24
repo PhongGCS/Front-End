@@ -19,10 +19,13 @@
         <div class="absolute top-10 left-10 z-10">
             <span id="counter" class="bg-red-600 px-4 py-2 rounded-full text-xl font-bold">Đoạn: 0/7</span>
         </div>
-        
+
         <video id="video" class="w-full max-w-4xl shadow-2xl" muted playsinline></video>
-        
-        <div class="mt-4 text-gray-400">Video sẽ phát 5s mỗi lần bạn cuộn</div>
+
+        <div class="mt-4 text-gray-400">
+            <div id="status">Video sẽ phát xong mới cho phép cuộn tiếp</div>
+            <div class="text-sm mt-2">Cuộn nhanh sẽ bị chặn cho đến khi video phát xong</div>
+        </div>
     </div>
 
     <div class="h-screen flex items-center justify-center bg-green-600">
@@ -30,79 +33,184 @@
     </div>
 
     <script>
-        // 1. Cấu hình HLS Video
+        // 1. DOM Elements & Video Source
         const video = document.getElementById('video');
         const counterEl = document.getElementById('counter');
-        const videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
-        
-        // Cấu hình logic
-        let currentStepIndex = -1; // Lưu bước hiện tại để so sánh
-        const maxPlays = 7;        // Tổng số đoạn
-        const durationPerScroll = 5; // Mỗi đoạn dài 5 giây
-        let pauseTimer = null;     // Biến để lưu bộ hẹn giờ dừng video
-    
+        const videoSection = document.getElementById('video-section');
+        const videoSrc = 'https://pub-c25f583359a74339b1ccb56b497f21bd.r2.dev/heka/index.m3u8';
+
+        // 2. Configuration & State
+        const NUM_SEGMENTS = 7;
+        const DURATION_POINTS = [0, 3.5, 7.5, 11, 14, 19, 21, 25]; // 8 points for 7 segments
+        const SCROLL_COOLDOWN = 800; // 800ms between scrolls
+
+        let currentSegmentIndex = -1; // Start before the first segment (-1 means none played yet)
+        let isPlaying = false;        // Is the video currently playing a segment?
+        let isScrollAllowed = true;   // Is scrolling allowed (for throttling)?
+        let pauseTimer = null;        // GSAP timer for pausing the video
+
+        // 3. HLS Video Initialization
         function initVideo() {
             if (typeof Hls !== 'undefined' && Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(videoSrc);
                 hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    console.log("Video manifest parsed and ready.");
+                });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = videoSrc;
             }
         }
         initVideo();
-    
-        // 2. Cấu hình GSAP
-        gsap.registerPlugin(ScrollTrigger);
-    
-        ScrollTrigger.create({
-            trigger: "#video-section",
-            start: "top top",
-            end: "+=5000", 
-            pin: true,
-            // markers: true, // Bật lên để debug nếu cần
-            onUpdate: (self) => {
-                // Tính toán xem đang ở đoạn thứ mấy (Từ 0 đến maxPlays - 1)
-                // Math.min để đảm bảo không vượt quá index cuối cùng khi scroll hết
-                let step = Math.floor(self.progress * maxPlays);
-                if (step >= maxPlays) step = maxPlays - 1; 
-    
-                // LOGIC QUAN TRỌNG:
-                // Chỉ chạy khi Step thay đổi (Scroll xuống qua đoạn mới HOẶC Scroll lên về đoạn cũ)
-                if (step !== currentStepIndex) {
-                    currentStepIndex = step;
-                    playSegment(currentStepIndex);
-                }
-            }
-        });
-    
-        function playSegment(index) {
-            // 1. Tính thời gian bắt đầu của đoạn này
-            // Ví dụ: Đoạn 0 bắt đầu từ 0s, Đoạn 1 bắt đầu từ 5s...
-            const startTime = index * durationPerScroll;
-    
-            // 2. Cập nhật giao diện đếm
-            counterEl.innerText = `Đoạn: ${index + 1}/${maxPlays} (Giây: ${startTime})`;
-    
-            // 3. Xử lý Video
-            // Tua video về đúng đầu đoạn (quan trọng cho việc scroll ngược)
-            video.currentTime = startTime; 
-            
-            video.play().then(() => {
-                // 4. Xử lý việc dừng video
-                // Nếu đang có lệnh dừng cũ (do scroll nhanh), hủy nó đi để tránh dừng sai lúc
-                if (pauseTimer) {
-                    pauseTimer.kill();
-                }
-    
-                // Tạo lệnh dừng mới sau 5s (durationPerScroll)
-                pauseTimer = gsap.delayedCall(durationPerScroll, () => {
-                    video.pause();
-                    console.log(`Đã dừng đoạn ${index + 1}`);
-                });
-    
-            }).catch(e => console.log("Cần tương tác người dùng (click) để bắt đầu video lần đầu"));
+
+    // 4. GSAP ScrollTrigger Setup for Pinning and Event Handling
+    gsap.registerPlugin(ScrollTrigger);
+
+    const videoScrollTrigger = ScrollTrigger.create({
+        trigger: "#video-section",
+        start: "top top",
+        // Provide enough scroll distance for all segments while pinned
+        end: () => `+=${NUM_SEGMENTS * 400}`,
+        pin: true,
+        onEnter: () => videoSection.addEventListener('wheel', handleWheel, { passive: false }),
+        onLeave: () => videoSection.removeEventListener('wheel', handleWheel),
+        onEnterBack: () => videoSection.addEventListener('wheel', handleWheel, { passive: false }),
+        onLeaveBack: () => videoSection.removeEventListener('wheel', handleWheel),
+        // markers: true, // Uncomment for debugging scroll trigger area
+    });
+
+    // 5. Scroll Wheel Event Handler
+
+    function handleWheel(e) {
+
+        const direction = e.deltaY > 0 ? 'down' : 'up';
+
+
+
+        // When at the top and scrolling up, allow native scroll to exit
+
+        if (direction === 'up' && currentSegmentIndex <= 0) {
+
+            return;
+
         }
-    </script>
+
+
+
+        // When at the bottom and scrolling down, allow native scroll to exit
+
+        if (direction === 'down' && currentSegmentIndex >= NUM_SEGMENTS - 1) {
+
+            return;
+
+        }
+
+
+
+        // If we are within the scrollable segments, prevent default page scroll
+
+        e.preventDefault();
+
+
+
+        // Block if on cooldown or a video segment is currently playing
+
+        if (!isScrollAllowed || isPlaying) {
+
+            return;
+
+        }
+
+
+
+        // Start cooldown immediately to throttle scroll events
+
+        isScrollAllowed = false;
+
+        setTimeout(() => { isScrollAllowed = true; }, SCROLL_COOLDOWN);
+
+
+
+        if (direction === 'down') {
+
+            currentSegmentIndex++;
+
+            playSegment(currentSegmentIndex);
+
+        } else { // direction === 'up'
+
+            currentSegmentIndex--;
+
+            playSegment(currentSegmentIndex);
+
+        }
+
+    }
+
+
+
+    // 6. Video Playback Logic
+
+    function playSegment(index) {
+
+        if (index < 0 || index >= NUM_SEGMENTS) return;
+
+        isPlaying = true;
+
+        const startTime = DURATION_POINTS[index];
+
+        const endTime = DURATION_POINTS[index + 1];
+
+        const duration = endTime - startTime;
+
+
+
+        counterEl.innerText = `Đoạn: ${index + 1}/${NUM_SEGMENTS} - ĐANG PHÁT`;
+
+        
+
+        video.currentTime = startTime;
+
+        
+
+        video.play().then(() => {
+
+            // If a previous pause timer exists, kill it
+
+            if (pauseTimer) {
+
+                pauseTimer.kill();
+
+            }
+
+            
+
+            // Set a new timer to pause the video after the segment duration
+
+            pauseTimer = gsap.delayedCall(duration, () => {
+
+                video.pause();
+
+                isPlaying = false;
+
+                counterEl.innerText = `Đoạn: ${index + 1}/${NUM_SEGMENTS} - SẴN SÀNG`;
+
+            });
+
+
+
+        }).catch(e => {
+
+            isPlaying = false;
+
+            console.error("Video play failed. User interaction might be required.", e);
+
+            counterEl.innerText = "Lỗi khi phát video!";
+
+        });
+
+    }    
+</script>
 </body>
 </html>
