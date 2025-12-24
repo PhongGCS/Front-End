@@ -1,0 +1,71 @@
+/**
+ * Heka Video Component Styles
+ */
+
+/* Main video wrapper */
+.video-section-heka {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    height: 100vh;
+    width: 100%;
+    background-color: #000;
+    color: #fff;
+}
+
+/* Counter element */
+.video-section-heka .counter-heka {
+    position: absolute;
+    top: 2.5rem; /* 40px */
+    left: 2.5rem; /* 40px */
+    z-index: 10;
+    background-color: #e53e3e; /* bg-red-600 */
+    color: #fff;
+    padding: 0.5rem 1rem; /* px-4 py-2 */
+    border-radius: 9999px; /* rounded-full */
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 700; /* font-bold */
+}
+
+/* Video element itself */
+.video-section-heka .video-heka {
+    width: 100%;
+    max-width: 56rem; /* max-w-4xl */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Status text below video */
+.video-section-heka .mt-4 {
+    margin-top: 1rem;
+    color: #a0aec0; /* text-gray-400 */
+    text-align: center;
+}
+
+.video-section-heka .text-sm {
+    font-size: 0.875rem;
+}
+
+/* Generic styling for the placeholder intro/outro sections. 
+   These can be replaced by actual Bricks sections. */
+.brx-heka-video ~ .h-screen,
+.h-screen:has(+ .brx-heka-video) {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+.brx-heka-video ~ .h-screen {
+    background-color: #2f855a; /* bg-green-600 */
+}
+.h-screen:has(+ .brx-heka-video) {
+     background-color: #3182ce; /* bg-blue-600 */
+}
+
+.h-screen h1 {
+    font-size: 2.25rem; /* text-4xl */
+    font-weight: 700; /* font-bold */
+}

@@ -15,12 +15,8 @@
         <h1 class="text-4xl font-bold">Cuộn xuống để xem video (7 đoạn x 5s)</h1>
     </div>
 
-    <div id="video-section" class="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-black">
-        <div class="absolute top-10 left-10 z-10">
-            <span id="counter" class="bg-red-600 px-4 py-2 rounded-full text-xl font-bold">Đoạn: 0/7</span>
-        </div>
-
-        <video id="video" class="w-full max-w-4xl shadow-2xl" muted playsinline></video>
+    <div id="video-section-heka" class="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-black">
+        <video id="video-heka" src-data='https://pub-c25f583359a74339b1ccb56b497f21bd.r2.dev/heka/index.m3u8' class="w-full max-w-4xl shadow-2xl" muted playsinline></video>
 
         <div class="mt-4 text-gray-400">
             <div id="status">Video sẽ phát xong mới cho phép cuộn tiếp</div>
@@ -34,10 +30,10 @@
 
     <script>
         // 1. DOM Elements & Video Source
-        const video = document.getElementById('video');
-        const counterEl = document.getElementById('counter');
-        const videoSection = document.getElementById('video-section');
-        const videoSrc = 'https://pub-c25f583359a74339b1ccb56b497f21bd.r2.dev/heka/index.m3u8';
+        const video = document.getElementById('video-heka');
+        // const counterEl = document.getElementById('counter');
+        const videoSection = document.getElementById('video-section-heka');
+        const videoSrc = video.getAttribute('src-data');
 
         // 2. Configuration & State
         const NUM_SEGMENTS = 7;
@@ -86,8 +82,6 @@
 
         const direction = e.deltaY > 0 ? 'down' : 'up';
 
-
-
         // When at the top and scrolling up, allow native scroll to exit
 
         if (direction === 'up' && currentSegmentIndex <= 0) {
@@ -95,8 +89,6 @@
             return;
 
         }
-
-
 
         // When at the bottom and scrolling down, allow native scroll to exit
 
@@ -106,23 +98,15 @@
 
         }
 
-
-
         // If we are within the scrollable segments, prevent default page scroll
 
         e.preventDefault();
 
-
-
         // Block if on cooldown or a video segment is currently playing
 
         if (!isScrollAllowed || isPlaying) {
-
             return;
-
         }
-
-
 
         // Start cooldown immediately to throttle scroll events
 
@@ -148,8 +132,6 @@
 
     }
 
-
-
     // 6. Video Playback Logic
 
     function playSegment(index) {
@@ -166,9 +148,7 @@
 
 
 
-        counterEl.innerText = `Đoạn: ${index + 1}/${NUM_SEGMENTS} - ĐANG PHÁT`;
-
-        
+        // counterEl.innerText = `Đoạn: ${index + 1}/${NUM_SEGMENTS} - ĐANG PHÁT`;
 
         video.currentTime = startTime;
 
@@ -194,22 +174,17 @@
 
                 isPlaying = false;
 
-                counterEl.innerText = `Đoạn: ${index + 1}/${NUM_SEGMENTS} - SẴN SÀNG`;
+                // counterEl.innerText = `Đoạn: ${index + 1}/${NUM_SEGMENTS} - SẴN SÀNG`;
 
             });
-
-
 
         }).catch(e => {
 
             isPlaying = false;
 
             console.error("Video play failed. User interaction might be required.", e);
-
-            counterEl.innerText = "Lỗi khi phát video!";
-
+            // counterEl.innerText = "Lỗi khi phát video!";
         });
-
     }    
 </script>
 </body>
