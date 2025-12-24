@@ -30,31 +30,26 @@
     </div>
 
     <script>
-        // 1. Đảm bảo dùng đúng tên đối tượng 'Hls' (viết thường l và s)
+        // 1. Cấu hình HLS Video
         const video = document.getElementById('video');
         const counterEl = document.getElementById('counter');
         const videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
         
-        let playCount = 0;
-        const maxPlays = 7;
-        const durationPerScroll = 5;
+        // Cấu hình logic
+        let currentStepIndex = -1; // Lưu bước hiện tại để so sánh
+        const maxPlays = 7;        // Tổng số đoạn
+        const durationPerScroll = 5; // Mỗi đoạn dài 5 giây
+        let pauseTimer = null;     // Biến để lưu bộ hẹn giờ dừng video
     
         function initVideo() {
-            // Kiểm tra xem Hls có tồn tại không (Hls viết thường)
             if (typeof Hls !== 'undefined' && Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(videoSrc);
                 hls.attachMedia(video);
-                console.log("HLS.js đã sẵn sàng!");
-            } 
-            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = videoSrc;
-            } else {
-                console.error("Trình duyệt không hỗ trợ m3u8");
             }
         }
-    
-        // Chạy khởi tạo video
         initVideo();
     
         // 2. Cấu hình GSAP
@@ -63,29 +58,50 @@
         ScrollTrigger.create({
             trigger: "#video-section",
             start: "top top",
-            end: "+=5000", // Tăng khoảng cách để cuộn mượt hơn
+            end: "+=5000", 
             pin: true,
-            scrub: true,
+            // markers: true, // Bật lên để debug nếu cần
             onUpdate: (self) => {
-                // Chia tiến độ thành 7 phần
-                let currentStep = Math.floor(self.progress * (maxPlays + 1));
-                
-                if (currentStep > playCount && playCount < maxPlays) {
-                    playCount = currentStep;
-                    playSegment();
+                // Tính toán xem đang ở đoạn thứ mấy (Từ 0 đến maxPlays - 1)
+                // Math.min để đảm bảo không vượt quá index cuối cùng khi scroll hết
+                let step = Math.floor(self.progress * maxPlays);
+                if (step >= maxPlays) step = maxPlays - 1; 
+    
+                // LOGIC QUAN TRỌNG:
+                // Chỉ chạy khi Step thay đổi (Scroll xuống qua đoạn mới HOẶC Scroll lên về đoạn cũ)
+                if (step !== currentStepIndex) {
+                    currentStepIndex = step;
+                    playSegment(currentStepIndex);
                 }
             }
         });
     
-        function playSegment() {
-            if(playCount <= maxPlays) {
-                counterEl.innerText = `Đoạn: ${playCount}/${maxPlays}`;
-                video.play().catch(e => console.log("Chờ tương tác người dùng để phát"));
-                
-                gsap.delayedCall(durationPerScroll, () => {
+        function playSegment(index) {
+            // 1. Tính thời gian bắt đầu của đoạn này
+            // Ví dụ: Đoạn 0 bắt đầu từ 0s, Đoạn 1 bắt đầu từ 5s...
+            const startTime = index * durationPerScroll;
+    
+            // 2. Cập nhật giao diện đếm
+            counterEl.innerText = `Đoạn: ${index + 1}/${maxPlays} (Giây: ${startTime})`;
+    
+            // 3. Xử lý Video
+            // Tua video về đúng đầu đoạn (quan trọng cho việc scroll ngược)
+            video.currentTime = startTime; 
+            
+            video.play().then(() => {
+                // 4. Xử lý việc dừng video
+                // Nếu đang có lệnh dừng cũ (do scroll nhanh), hủy nó đi để tránh dừng sai lúc
+                if (pauseTimer) {
+                    pauseTimer.kill();
+                }
+    
+                // Tạo lệnh dừng mới sau 5s (durationPerScroll)
+                pauseTimer = gsap.delayedCall(durationPerScroll, () => {
                     video.pause();
+                    console.log(`Đã dừng đoạn ${index + 1}`);
                 });
-            }
+    
+            }).catch(e => console.log("Cần tương tác người dùng (click) để bắt đầu video lần đầu"));
         }
     </script>
 </body>

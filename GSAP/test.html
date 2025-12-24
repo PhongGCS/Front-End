@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSAP MP4 Scroll Segment Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            background-color: #111;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        .spacer {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            background: #222;
+        }
+
+        #video-section {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Bảng thông số để debug */
+        #debug-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="spacer">👇 Kéo xuống để bắt đầu test</div>
+
+    <section id="video-section">
+        <video id="myVideo" src="./video/heka.mp4" muted playsinline preload="auto"></video>
+    </section>
+
+    <div id="debug-panel">
+        <div>Trạng thái: <span id="status">Đang chờ...</span></div>
+        <div>Đoạn (Step): <span id="step-display">0</span></div>
+        <div>Thời gian video: <span id="time-display">0s</span></div>
+    </div>
+
+    <div class="spacer">Hết nội dung</div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        const video = document.getElementById("myVideo");
+        const statusEl = document.getElementById("status");
+        const stepEl = document.getElementById("step-display");
+        const timeEl = document.getElementById("time-display");
+
+        // CẤU HÌNH
+        const SEGMENT_DURATION = 4; // Mỗi lần scroll chạy 4 giây
+        let currentStepIndex = -1;  // Lưu bước hiện tại
+        let pauseTimer = null;      // Biến lưu bộ đếm giờ dừng
+
+        // Đợi video load thông tin cơ bản
+        video.onloadedmetadata = function () {
+            const totalDuration = video.duration;
+            // Tính tổng số bước có thể chia được
+            const totalSteps = Math.floor(totalDuration / SEGMENT_DURATION);
+
+            console.log(`Video dài: ${totalDuration}s, Tổng số bước: ${totalSteps}`);
+
+            // Tạo ScrollTrigger
+            ScrollTrigger.create({
+                trigger: "#video-section",
+                start: "top top",
+                // Tính chiều dài scroll dựa trên số bước (mỗi bước cuộn 800px)
+                end: "+=" + (totalSteps * 800),
+                pin: true,
+                snap: {
+                    snapTo: 1 / (totalSteps - 1),
+                    duration: { min: 0.2, max: 0.4 },
+                    delay: 0.1,
+                    ease: "power1.inOut"
+                },
+                // markers: true, // Bật cái này nếu muốn xem điểm bắt đầu/kết thúc scroll
+                onUpdate: (self) => {
+                    // Tính toán bước hiện tại dựa trên % scroll
+                    let step = Math.floor(self.progress * totalSteps);
+
+                    // Giới hạn không cho vượt quá bước cuối cùng
+                    if (step >= totalSteps) step = totalSteps - 1;
+
+                    // Nếu người dùng chuyển sang bước khác (lên hoặc xuống)
+                    if (step !== currentStepIndex) {
+                        currentStepIndex = step;
+                        playSegment(currentStepIndex);
+                    }
+                }
+            });
+        };
+
+        function playSegment(index) {
+            // 1. Hủy lệnh dừng cũ (nếu có) để tránh video dừng đột ngột khi đang lướt nhanh
+            if (pauseTimer) pauseTimer.kill();
+
+            // 2. Tính thời gian bắt đầu
+            const startTime = index * SEGMENT_DURATION;
+
+            // Cập nhật Debug Panel
+            stepEl.innerText = index + 1;
+            timeEl.innerText = `${startTime}s -> ${startTime + SEGMENT_DURATION}s`;
+            statusEl.innerText = "Đang chạy ▶️";
+
+            // 3. Xử lý Video
+            video.currentTime = startTime; // Tua tới đầu đoạn
+
+            video.play().then(() => {
+                // 4. Hẹn giờ dừng sau 4 giây
+                pauseTimer = gsap.delayedCall(SEGMENT_DURATION, () => {
+                    video.pause();
+                    statusEl.innerText = "Đã dừng ⏸️";
+                });
+            }).catch(error => {
+                console.error("Lỗi Autoplay:", error);
+                statusEl.innerText = "Lỗi: Cần click vào trang!";
+            });
+        }
+    </script>
+</body>
+
+</html>
