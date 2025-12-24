@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSAP Video M3U8 Scroll Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+
+    <div class="h-screen flex items-center justify-center bg-blue-600">
+        <h1 class="text-4xl font-bold">Cuộn xuống để xem video (7 đoạn x 5s)</h1>
+    </div>
+
+    <div id="video-section" class="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-black">
+        <div class="absolute top-10 left-10 z-10">
+            <span id="counter" class="bg-red-600 px-4 py-2 rounded-full text-xl font-bold">Đoạn: 0/7</span>
+        </div>
+        
+        <video id="video" class="w-full max-w-4xl shadow-2xl" muted playsinline></video>
+        
+        <div class="mt-4 text-gray-400">Video sẽ phát 5s mỗi lần bạn cuộn</div>
+    </div>
+
+    <div class="h-screen flex items-center justify-center bg-green-600">
+        <h1 class="text-4xl font-bold">Chúc mừng! Bạn đã xem hết 7 lần cuộn.</h1>
+    </div>
+
+    <script>
+        // 1. Đảm bảo dùng đúng tên đối tượng 'Hls' (viết thường l và s)
+        const video = document.getElementById('video');
+        const counterEl = document.getElementById('counter');
+        const videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
+        
+        let playCount = 0;
+        const maxPlays = 7;
+        const durationPerScroll = 5;
+    
+        function initVideo() {
+            // Kiểm tra xem Hls có tồn tại không (Hls viết thường)
+            if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(videoSrc);
+                hls.attachMedia(video);
+                console.log("HLS.js đã sẵn sàng!");
+            } 
+            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSrc;
+            } else {
+                console.error("Trình duyệt không hỗ trợ m3u8");
+            }
+        }
+    
+        // Chạy khởi tạo video
+        initVideo();
+    
+        // 2. Cấu hình GSAP
+        gsap.registerPlugin(ScrollTrigger);
+    
+        ScrollTrigger.create({
+            trigger: "#video-section",
+            start: "top top",
+            end: "+=5000", // Tăng khoảng cách để cuộn mượt hơn
+            pin: true,
+            scrub: true,
+            onUpdate: (self) => {
+                // Chia tiến độ thành 7 phần
+                let currentStep = Math.floor(self.progress * (maxPlays + 1));
+                
+                if (currentStep > playCount && playCount < maxPlays) {
+                    playCount = currentStep;
+                    playSegment();
+                }
+            }
+        });
+    
+        function playSegment() {
+            if(playCount <= maxPlays) {
+                counterEl.innerText = `Đoạn: ${playCount}/${maxPlays}`;
+                video.play().catch(e => console.log("Chờ tương tác người dùng để phát"));
+                
+                gsap.delayedCall(durationPerScroll, () => {
+                    video.pause();
+                });
+            }
+        }
+    </script>
+</body>
+</html>
