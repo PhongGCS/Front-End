@@ -1,191 +1,44 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GSAP Video M3U8 Scroll Control</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/SplitText.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-</head>
-<body class="bg-gray-900 text-white font-sans">
-
+  </head>
+  <body class="bg-gray-900 text-white font-sans">
     <div class="h-screen flex items-center justify-center bg-blue-600">
-        <h1 class="text-4xl font-bold">Cuộn xuống để xem video (7 đoạn x 5s)</h1>
+      <h1 class="text-4xl font-bold">Cuộn xuống để xem video (7 đoạn x 5s)</h1>
     </div>
 
-    <div id="video-section-heka" class="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-black">
-        <video id="video-heka" src-data='https://pub-c25f583359a74339b1ccb56b497f21bd.r2.dev/heka/index.m3u8' class="w-full max-w-4xl shadow-2xl" muted playsinline></video>
+    <div
+      class="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-black js-video"
+    >
+      <video
+        id="video-scroll"
+        src="/GSAP/assets/videos/demo.mp4"
+        preload="auto"
+        class="w-full max-w-4xl shadow-2xl"
+        muted
+        playsinline
+      ></video>
 
-        <div class="mt-4 text-gray-400">
-            <div id="status">Video sẽ phát xong mới cho phép cuộn tiếp</div>
-            <div class="text-sm mt-2">Cuộn nhanh sẽ bị chặn cho đến khi video phát xong</div>
+      <div class="mt-4 text-gray-400">
+        <div id="status">Video sẽ phát xong mới cho phép cuộn tiếp</div>
+        <div class="text-sm mt-2">
+          Cuộn nhanh sẽ bị chặn cho đến khi video phát xong
         </div>
+      </div>
     </div>
 
     <div class="h-screen flex items-center justify-center bg-green-600">
-        <h1 class="text-4xl font-bold">Chúc mừng! Bạn đã xem hết 7 lần cuộn.</h1>
+      <h1 class="text-4xl font-bold">Chúc mừng! Bạn đã xem hết 7 lần cuộn.</h1>
     </div>
 
-    <script>
-        // 1. DOM Elements & Video Source
-        const video = document.getElementById('video-heka');
-        // const counterEl = document.getElementById('counter');
-        const videoSection = document.getElementById('video-section-heka');
-        const videoSrc = video.getAttribute('src-data');
-
-        // 2. Configuration & State
-        const NUM_SEGMENTS = 7;
-        const DURATION_POINTS = [0, 3.5, 7.5, 11, 14, 19, 21, 25]; // 8 points for 7 segments
-        const SCROLL_COOLDOWN = 800; // 800ms between scrolls
-
-        let currentSegmentIndex = -1; // Start before the first segment (-1 means none played yet)
-        let isPlaying = false;        // Is the video currently playing a segment?
-        let isScrollAllowed = true;   // Is scrolling allowed (for throttling)?
-        let pauseTimer = null;        // GSAP timer for pausing the video
-
-        // 3. HLS Video Initialization
-        function initVideo() {
-            if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(videoSrc);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    console.log("Video manifest parsed and ready.");
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = videoSrc;
-            }
-        }
-        initVideo();
-
-    // 4. GSAP ScrollTrigger Setup for Pinning and Event Handling
-    gsap.registerPlugin(ScrollTrigger);
-
-    const videoScrollTrigger = ScrollTrigger.create({
-        trigger: "#video-section",
-        start: "top top",
-        // Provide enough scroll distance for all segments while pinned
-        end: () => `+=${NUM_SEGMENTS * 400}`,
-        pin: true,
-        onEnter: () => videoSection.addEventListener('wheel', handleWheel, { passive: false }),
-        onLeave: () => videoSection.removeEventListener('wheel', handleWheel),
-        onEnterBack: () => videoSection.addEventListener('wheel', handleWheel, { passive: false }),
-        onLeaveBack: () => videoSection.removeEventListener('wheel', handleWheel),
-        // markers: true, // Uncomment for debugging scroll trigger area
-    });
-
-    // 5. Scroll Wheel Event Handler
-
-    function handleWheel(e) {
-
-        const direction = e.deltaY > 0 ? 'down' : 'up';
-
-        // When at the top and scrolling up, allow native scroll to exit
-
-        if (direction === 'up' && currentSegmentIndex <= 0) {
-
-            return;
-
-        }
-
-        // When at the bottom and scrolling down, allow native scroll to exit
-
-        if (direction === 'down' && currentSegmentIndex >= NUM_SEGMENTS - 1) {
-
-            return;
-
-        }
-
-        // If we are within the scrollable segments, prevent default page scroll
-
-        e.preventDefault();
-
-        // Block if on cooldown or a video segment is currently playing
-
-        if (!isScrollAllowed || isPlaying) {
-            return;
-        }
-
-        // Start cooldown immediately to throttle scroll events
-
-        isScrollAllowed = false;
-
-        setTimeout(() => { isScrollAllowed = true; }, SCROLL_COOLDOWN);
-
-
-
-        if (direction === 'down') {
-
-            currentSegmentIndex++;
-
-            playSegment(currentSegmentIndex);
-
-        } else { // direction === 'up'
-
-            currentSegmentIndex--;
-
-            playSegment(currentSegmentIndex);
-
-        }
-
-    }
-
-    // 6. Video Playback Logic
-
-    function playSegment(index) {
-
-        if (index < 0 || index >= NUM_SEGMENTS) return;
-
-        isPlaying = true;
-
-        const startTime = DURATION_POINTS[index];
-
-        const endTime = DURATION_POINTS[index + 1];
-
-        const duration = endTime - startTime;
-
-
-
-        // counterEl.innerText = `Đoạn: ${index + 1}/${NUM_SEGMENTS} - ĐANG PHÁT`;
-
-        video.currentTime = startTime;
-
-        
-
-        video.play().then(() => {
-
-            // If a previous pause timer exists, kill it
-
-            if (pauseTimer) {
-
-                pauseTimer.kill();
-
-            }
-
-            
-
-            // Set a new timer to pause the video after the segment duration
-
-            pauseTimer = gsap.delayedCall(duration, () => {
-
-                video.pause();
-
-                isPlaying = false;
-
-                // counterEl.innerText = `Đoạn: ${index + 1}/${NUM_SEGMENTS} - SẴN SÀNG`;
-
-            });
-
-        }).catch(e => {
-
-            isPlaying = false;
-
-            console.error("Video play failed. User interaction might be required.", e);
-            // counterEl.innerText = "Lỗi khi phát video!";
-        });
-    }    
-</script>
-</body>
+    <script type="module" src="/GSAP/js/app.js"></script>
+  </body>
 </html>

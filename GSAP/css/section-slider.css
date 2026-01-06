@@ -1,0 +1,141 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+.section-one {
+  height: 100lvh;
+  background-color: #2a2a2a;
+}
+
+.section-three {
+  height: 100lvh;
+  background-color: #3a3a3a;
+}
+
+.section-two {
+  --item-count: 1;
+  --word-offset-x: var(--grid-abs-offset);
+  --word-offset-y: calc(var(--font-size-h-lg) * 1.2857);
+  position: relative;
+  height: calc(100lvh + var(--item-count) * 200lvh);
+}
+
+@media only screen and (max-width: 1680px) {
+  .section-two {
+    --word-offset-x: calc(var(--grid-abs-offset) * 2);
+    --word-offset-y: 2.5rem;
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .section-two {
+    --word-offset-y: 1.55rem;
+  }
+}
+
+@media only screen and (max-width: 987px) {
+  .section-two {
+    --word-offset-x: var(--grid-offset);
+    --word-offset-y: 5rem;
+  }
+}
+
+.section-two .section__inner {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100lvh;
+  overflow: hidden;
+}
+
+.section-two .section__intro,
+.section-two .section__scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.section-two .slider-container {
+  --height: calc(100lvh - var(--word-offset-y) * 2 - var(--font-size-h-lg) * 4);
+  position: absolute;
+  top: calc(50% - var(--height) * 0.5);
+  left: 0;
+  width: 100%;
+  height: var(--height);
+  will-change: transform;
+}
+
+.section-two .slider-item {
+  --project-width: min(
+    calc(10 * var(--grid-column-width) + 9 * var(--grid-gutter-width)),
+    110lvh
+  );
+  --project-height: calc(var(--project-width) * 0.5625);
+  position: absolute;
+  top: calc(50% - var(--project-height) * 0.5);
+  left: calc(50% - var(--project-width) * 0.5);
+  z-index: 1;
+  width: var(--project-width);
+  height: var(--project-height);
+  background: #141414;
+  border-radius: calc(var(--project-width) * 0.2);
+  aspect-ratio: 16/9;
+  will-change: aspect-ratio, transform, border-radius;
+}
+
+@media only screen and (max-width: 987px) {
+  .section-two .slider-item {
+    --project-width: calc(
+      12 * var(--grid-column-width) + 11 * var(--grid-gutter-width)
+    );
+  }
+}
+
+.section-two .slider-item .si__media,
+.section-two .slider-item .si__inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.section-two .slider-item .si__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  z-index: 2;
+}
+
+.section-two .slider-item .si__media {
+  overflow: hidden;
+  will-change: transform;
+}
+
+.section-two .slider-item .si__media img,
+.section-two .slider-item .si__media video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 120%;
+  max-width: none;
+  height: 100%;
+  -o-object-fit: cover;
+  object-fit: cover;
+  transition: scale 1s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: scale;
+}
+
+.section-two .slider-item .si__wrapper:hover .si__media img,
+.section-two .slider-item .si__wrapper:hover .si__media video {
+  scale: 1.05;
+}
+
+.col {
+  height: 100%;
+  width: 100%;
+  /* border: 1px dashed #555; */ /* Uncomment to see column guides */
+}
