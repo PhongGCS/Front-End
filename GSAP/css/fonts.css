@@ -88,7 +88,7 @@
 }
 
 h1 {
-  font-size: var(--font-size-h-2xl);
+  font-size: clamp(36px, 6.5vw, 96px);
   font-weight: var(--font-weight-h-2xl);
   line-height: var(--font-height-h-2xl);
   font-family: var(--font-family-h-2xl);
@@ -96,7 +96,7 @@ h1 {
 }
 
 h2 {
-  font-size: var(--font-size-h-xl);
+  font-size: clamp(24px, 4vw + 0px, 48px);
   font-weight: var(--font-weight-h-xl);
   line-height: var(--font-height-h-xl);
   font-family: var(--font-family-h-xl);
@@ -104,7 +104,7 @@ h2 {
 }
 
 h3 {
-  font-size: var(--font-size-h-lg);
+  font-size: clamp(20px, 3.5vw, 24px);
   font-weight: var(--font-weight-h-lg);
   line-height: var(--font-height-h-lg);
   font-family: var(--font-family-h-lg);

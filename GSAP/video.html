@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="is-loading">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,31 +9,126 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/SplitText.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link rel="stylesheet" href="/GSAP/css/main.css" />
+    <style>
+      html.is-loading body {
+        opacity: 0;
+        pointer-events: none;
+      }
+      body {
+        transition: opacity 0.3s ease;
+      }
+      #page-loader {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: #0b0b0b;
+        color: #fff;
+        font-family: sans-serif;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease;
+      }
+      html.is-loading #page-loader {
+        opacity: 1;
+        visibility: visible;
+      }
+    </style>
   </head>
   <body class="bg-gray-900 text-white font-sans">
+    <div id="page-loader">Loading assets…</div>
     <div class="h-screen flex items-center justify-center bg-blue-600">
       <h1 class="text-4xl font-bold">Cuộn xuống để xem video (7 đoạn x 5s)</h1>
     </div>
 
     <div
-      class="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-black js-video"
+      class="h-screen w-full flex flex-col items-center justify-end relative overflow-hidden bg-black js-video"
       data-component="video"
     >
+      <div class="absolute top-[8%] text-center max-w-md">
+        <div class="flex flex-col gap-2 js-content">
+          <h3>Adaptive Comfort in Real Time</h3>
+          <p class="text-sm font-semibold">
+            Micro-adjusts temperature, airflow, and firmness as you move so you
+            never wake up too hot or too cold; sensors learn your patterns
+            nightly and tune the surface within seconds for a consistently
+            balanced sleep climate.
+          </p>
+        </div>
+        <div
+          class="absolute w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 js-content"
+        >
+          <h3>Smooth Sleep Transitions</h3>
+          <p class="text-sm font-semibold">
+            Guided vibrations ease you from light dozing into deep rest without
+            jolting you awake, aligning with your breathing to reduce
+            micro-arousals and restlessness so you drift naturally into deeper
+            stages.
+          </p>
+        </div>
+        <div
+          class="absolute w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 js-content"
+        >
+          <h3>Gentle Wake Assistance</h3>
+          <p class="text-sm font-semibold">
+            Slow-rise light and tone match your circadian rhythm so you wake
+            clear, not groggy; vibration ramps softly to nudge you out of REM
+            without spiking your heart rate or shocking you awake.
+          </p>
+        </div>
+        <div
+          class="absolute w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 js-content"
+        >
+          <h3>Breath-Synced Relaxation</h3>
+          <p class="text-sm font-semibold">
+            Haptic cues mirror calm breathing to lower heart rate naturally and
+            shorten sleep onset, with the bed humming in sync with your exhale
+            to teach your body to downshift and quiet the mind.
+          </p>
+        </div>
+        <div
+          class="absolute w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 js-content"
+        >
+          <h3>Noise-Aware Quiet Mode</h3>
+          <p class="text-sm font-semibold">
+            Adaptive soundmasking reacts instantly to spikes—traffic, voices,
+            doors—before they wake you, filling only the gaps to keep the room
+            serene so you sleep through chaos without heavy white noise walls.
+          </p>
+        </div>
+        <div
+          class="absolute w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 js-content"
+        >
+          <h3>Partner-Friendly Zoning</h3>
+          <p class="text-sm font-semibold">
+            Independent sides personalize firmness, temperature, and cues
+            without bleeding over, while motion isolation keeps your partner’s
+            midnight shifts from reaching you so you can share a bed without
+            sharing interruptions.
+          </p>
+        </div>
+        <div
+          class="absolute w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 js-content"
+        >
+          <h3>Sleep Insights You Can Use</h3>
+          <p class="text-sm font-semibold">
+            Clear nightly summaries turn signals into simple, actionable tips
+            you can actually follow—no dashboards to decipher, just one or two
+            nudges to improve tonight and build better habits over time.
+          </p>
+        </div>
+      </div>
+
       <video
         id="video-scroll"
         src="/GSAP/assets/videos/demo.mp4"
         preload="auto"
-        class="w-full max-w-4xl shadow-2xl"
+        class="w-full aspect-9/4 object-cover"
         muted
         playsinline
       ></video>
-
-      <div class="mt-4 text-gray-400">
-        <div id="status">Video sẽ phát xong mới cho phép cuộn tiếp</div>
-        <div class="text-sm mt-2">
-          Cuộn nhanh sẽ bị chặn cho đến khi video phát xong
-        </div>
-      </div>
     </div>
 
     <div class="h-screen flex items-center justify-center bg-green-600">
