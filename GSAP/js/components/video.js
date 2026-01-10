@@ -6,8 +6,6 @@ export class Video extends Component {
   contents;
   contentSegments = [];
   duration = 0;
-  timeline;
-  objectUrl;
   activated = false;
   readyMarked = false;
 
@@ -24,7 +22,6 @@ export class Video extends Component {
 
   async setup() {
     await this.initVideo();
-    await this.cacheToBlob();
     this.handleReady();
   }
 
@@ -42,23 +39,6 @@ export class Video extends Component {
       if (!this.video.getAttribute("src")) {
         this.video.src = this.videoSrc;
       }
-    });
-  }
-
-  async cacheToBlob() {
-    // Skip if already blob cached or fetch unavailable.
-    if (this.video.src.startsWith("blob:") || !globalThis.fetch) return;
-
-    const t = this.video.currentTime || 0;
-    const response = await fetch(this.videoSrc);
-    const blob = await response.blob();
-    this.objectUrl = URL.createObjectURL(blob);
-
-    await new Promise((resolve) => {
-      this.video.addEventListener("loadedmetadata", resolve, { once: true });
-      this.video.src = this.objectUrl;
-      // Nudge currentTime slightly to force ready state on some browsers.
-      this.video.currentTime = t + 0.01;
     });
   }
 
@@ -87,6 +67,8 @@ export class Video extends Component {
     this.video.playsInline = true;
     this.video.setAttribute("playsinline", "");
     this.video.setAttribute("webkit-playsinline", "");
+    this.video.setAttribute("muted", "");
+    this.video.autoplay = true;
     this.video.disableRemotePlayback = true;
 
     // iOS activation to allow programmatic seeking.
@@ -99,24 +81,17 @@ export class Video extends Component {
 
     this.createScrollScrub();
     this.prepareContentSegments();
+    ScrollTrigger.refresh();
     this.markReady();
   }
 
   createScrollScrub() {
-    this.timeline = gsap.timeline({ paused: true });
-    this.timeline.to(
-      this.video,
-      { currentTime: this.duration, ease: "none" },
-      0
-    );
-
     ScrollTrigger.create({
       trigger: this.el,
       start: "top top",
       end: () => `+=${this.duration * 320}`,
       scrub: 1,
       pin: true,
-      animation: this.timeline,
       onEnter: () => {
         this.tryActivate();
         this.video.pause();
@@ -126,8 +101,20 @@ export class Video extends Component {
         this.video.pause();
       },
       onRefresh: () => this.video.pause(),
-      onUpdate: (self) => this.syncContent(self.progress),
+      onUpdate: (self) => {
+        const progress = self.progress;
+        this.updateCurrentTime(progress);
+        this.syncContent(progress);
+      },
     });
+  }
+
+  updateCurrentTime(progress) {
+    if (!this.duration) return;
+    const clamped = Math.max(0, Math.min(1, progress));
+    const target = clamped * this.duration;
+    // Direct set to currentTime; iOS prefers immediate jumps over animated scrubs.
+    this.video.currentTime = target;
   }
 
   prepareContentSegments() {
