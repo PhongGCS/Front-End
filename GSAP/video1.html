@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSAP Video M3U8 Scroll Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+
+    <div class="h-screen flex items-center justify-center bg-blue-600">
+        <h1 class="text-4xl font-bold">Cuộn xuống để xem video (7 đoạn x 5s)</h1>
+    </div>
+
+    <section id="brxe-lriwhe" class="brxe-section 100vh">
+        <div id="brxe-phfxpn" class="container mx-auto">
+            <div id="brxe-rddhvy" data-script-id="rddhvy" class="brxe-heka-video">
+                <div id='rddhvy' class=' bg-black video-section-heka container mx-auto' data-hls-url='https://pub-c25f583359a74339b1ccb56b497f21bd.r2.dev/heka/index.m3u8'>
+                    <video class="video-heka" muted playsinline></video>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="h-screen flex items-center justify-center bg-green-600">
+        <h1 class="text-4xl font-bold">Chúc mừng! Bạn đã xem hết 7 lần cuộn.</h1>
+    </div>
+
+<script type="module" src="/GSAP/js/video1.js"></script>
+</body>
+</html>
