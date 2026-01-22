@@ -1,0 +1,178 @@
+.section-product-details {
+  position: relative;
+  height: 100lvh;
+}
+
+.section-product-details .section__inner {
+  position: relative;
+  width: 100%;
+  height: 100lvh;
+  padding: 0 32px;
+  max-width: clamp(320px, 90lvw, 1920px);
+  margin-inline: auto;
+}
+
+.pd__title-mask {
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  background-color: #fff;
+}
+
+.pd__item {
+  width: 100%;
+  height: 100%;
+}
+
+.pd__item:not(:first-child) {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+}
+
+.pd__media {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pd-tooltip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.pd__item:nth-child(2) .pd-tooltip {
+  --pin-x: 50.7%;
+  --pin-y: 35.7%;
+  --lineLength: 35%;
+  --line-angle: -45deg;
+}
+
+.pd__item:nth-child(3) .pd-tooltip {
+  --pin-x: 33%;
+  --pin-y: 58%;
+  --lineLength: 40%;
+  --line-angle: -13deg;
+}
+
+.pd__item:nth-child(4) .pd-tooltip {
+  --pin-x: 76%;
+  --pin-y: 55%;
+  --lineLength: 18%;
+  --line-angle: 123deg;
+}
+
+.pd__item:nth-child(5) .pd-tooltip {
+  --pin-x: 72%;
+  --pin-y: 64%;
+  --lineLength: 15%;
+  --line-angle: -75deg;
+}
+
+.pd__item:nth-child(6) .pd-tooltip {
+  --pin-x: 74%;
+  --pin-y: 81%;
+  --lineLength: 14%;
+  --line-angle: 1664deg;
+}
+
+.pd-tooltip__pin {
+  position: absolute;
+  display: block;
+  width: 22px;
+  height: 22px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.25);
+  left: var(--pin-x);
+  top: var(--pin-y);
+  transform: translate(-50%, -50%);
+}
+
+.pd-tooltip__pin::after {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  animation: pd-pulse 1.6s ease-out infinite;
+}
+
+.pd-tooltip__line {
+  position: absolute;
+  left: var(--pin-x);
+  right: var(--lineLength);
+  top: var(--pin-y);
+  height: 2px;
+  background: #fff;
+  transform-origin: left center;
+  transform: translateY(-50%) rotate(var(--line-angle));
+}
+
+.pd-tooltip__card {
+  position: absolute;
+  width: 500px;
+  padding: 32px;
+  border-radius: 16px;
+  background: rgba(73, 73, 73, 0.4);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  text-align: center;
+  right: 0;
+}
+
+.pd__item:nth-child(2) .pd-tooltip__card {
+  top: 8%;
+}
+
+.pd__item:nth-child(3) .pd-tooltip__card {
+  top: 36%;
+}
+
+.pd__item:nth-child(4) .pd-tooltip__card {
+  top: 63%;
+}
+
+.pd__item:nth-child(5) .pd-tooltip__card {
+  top: 27%;
+}
+
+.pd__item:nth-child(6) .pd-tooltip__card {
+  top: 76%;
+  right: 37.5%
+}
+
+.pd-tooltip__title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.pd-tooltip__text {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+@keyframes pd-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
