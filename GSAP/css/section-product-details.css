@@ -8,7 +8,7 @@
   width: 100%;
   height: 100lvh;
   padding: 0 32px;
-  max-width: clamp(320px, 90lvw, 1920px);
+  max-width: clamp(576px, 90lvw, 1920px);
   margin-inline: auto;
 }
 
@@ -46,41 +46,74 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
+  --line-length: 0px;
 }
 
 .pd__item:nth-child(2) .pd-tooltip {
   --pin-x: 50.7%;
   --pin-y: 35.7%;
-  --lineLength: 35%;
   --line-angle: -45deg;
 }
 
 .pd__item:nth-child(3) .pd-tooltip {
   --pin-x: 33%;
   --pin-y: 58%;
-  --lineLength: 40%;
   --line-angle: -13deg;
 }
 
 .pd__item:nth-child(4) .pd-tooltip {
   --pin-x: 76%;
   --pin-y: 55%;
-  --lineLength: 18%;
   --line-angle: 123deg;
 }
 
 .pd__item:nth-child(5) .pd-tooltip {
   --pin-x: 72%;
   --pin-y: 64%;
-  --lineLength: 15%;
   --line-angle: -75deg;
 }
 
 .pd__item:nth-child(6) .pd-tooltip {
   --pin-x: 74%;
   --pin-y: 81%;
-  --lineLength: 14%;
-  --line-angle: 1664deg;
+  --line-angle: 166deg;
+}
+
+@media only screen and (max-width: 1024px) {
+  .pd__item:nth-child(3) .pd-tooltip {
+    --pin-x: 15%;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .pd__item:nth-child(2) .pd-tooltip {
+    --pin-x: 60.7%;
+    --pin-y: 32.7%;
+    --line-angle: 102deg;
+  }
+
+  .pd__item:nth-child(3) .pd-tooltip {
+    --pin-x: 60%;
+    --pin-y: 43%;
+    --line-angle: 103deg;
+  }
+
+  .pd__item:nth-child(4) .pd-tooltip {
+    --pin-x: 82%;
+    --pin-y: 43%;
+    --line-angle: 106deg;
+  }
+
+  .pd__item:nth-child(5) .pd-tooltip {
+    --pin-x: 82%;
+    --pin-y: 51%;
+    --line-angle: 110deg;
+  }
+
+  .pd__item:nth-child(6) .pd-tooltip {
+    --pin-y: 60%;
+    --line-angle: 114deg;
+  }
 }
 
 .pd-tooltip__pin {
@@ -109,12 +142,12 @@
 .pd-tooltip__line {
   position: absolute;
   left: var(--pin-x);
-  right: var(--lineLength);
   top: var(--pin-y);
+  width: var(--line-length, var(--line-length, 0px));
   height: 2px;
   background: #fff;
   transform-origin: left center;
-  transform: translateY(-50%) rotate(var(--line-angle));
+  transform: rotate(var(--line-angle));
 }
 
 .pd-tooltip__card {
@@ -148,6 +181,27 @@
 .pd__item:nth-child(6) .pd-tooltip__card {
   top: 76%;
   right: 37.5%
+}
+
+@media only screen and (max-width: 1024px) {
+  .pd-tooltip__card {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .pd__media {
+    transform: translateY(-10%);
+  }
+
+  .pd__item:not(:first-child) .pd-tooltip__card {
+    top: auto;
+    bottom: 40px;
+    left: 50%;
+    right: unset;
+    transform: translateX(-50%);
+  }
 }
 
 .pd-tooltip__title {
