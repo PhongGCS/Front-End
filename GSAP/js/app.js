@@ -1,6 +1,7 @@
 import { Slider } from "./components/slider.js";
 import { Video } from "./components/video.js";
 import { ProductDetails } from "./components/product-details.js";
+import { ProductAI } from "./components/product-ai.js";
 
 class App {
   components;
@@ -18,8 +19,9 @@ class App {
     const slider = new Slider(".js-slider");
     const video = new Video(".js-video");
     const productDetails = new ProductDetails(".js-product-details");
-    video.setup?.();
-    this.components.push(slider, video, productDetails);
+    const productAI = new ProductAI(".js-product-ai");
+    if (video) video.setup?.();
+    this.components.push(slider, video, productDetails, productAI);
   }
 
   addEventListeners() {
@@ -54,5 +56,5 @@ class App {
 
 document.addEventListener("DOMContentLoaded", () => {
   // Keep a reference to avoid "no-new" lint and allow debugging.
-  globalThis.sliderApp = new App();
+  globalThis.app = new App();
 });

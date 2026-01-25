@@ -68,7 +68,7 @@
 }
 
 .pd__item:nth-child(5) .pd-tooltip {
-  --pin-x: 72%;
+  --pin-x: 80%;
   --pin-y: 64%;
   --line-angle: -75deg;
 }

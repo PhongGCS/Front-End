@@ -56,7 +56,7 @@ export class ProductDetails extends Component {
     tl.to(productDetailItems, { opacity: 1 }, "-=0.2")
 
     // first item
-    tl.to(sectionTitle, { fontSize: "clamp(24px, 4vw + 0px, 48px)" }, "+=2")
+    tl.to(sectionTitle, { fontSize: "clamp(24px, 4vw + 0px, 48px)" }, ">2")
     tl.to(titleLeft, { x: 0 }, "<")
     tl.to(titleRight, { x: 0, y: 0 }, "<")
     tl.call(() => sectionTitle.classList.replace('h-2xl', 'h-xl'), null, ">")
@@ -77,13 +77,13 @@ export class ProductDetails extends Component {
       gsap.set(tooltipCard, { opacity: 0, y: 16 })
 
       // enter
-      tl.to(detailItem, { opacity: 1 }, `+=1`)
+      tl.to(detailItem, { opacity: 1 }, `>1`)
       tl.to(tooltipPin, { scale: 1, opacity: 1 }, ">")
       tl.to(tooltipLine, { scaleX: 1 }, ">")
       tl.to(tooltipCard, { opacity: 1, y: 0 }, ">")
 
       // exit
-      tl.to(tooltipPin, { scale: 0, opacity: 0 }, "+=2")
+      tl.to(tooltipPin, { scale: 0, opacity: 0 }, ">2")
       tl.to(tooltipLine, { scaleX: 0 }, "<")
       tl.to(tooltipCard, { opacity: 0, y: 16 }, "<")
       tl.to(detailItem, { opacity: 0 }, ">")

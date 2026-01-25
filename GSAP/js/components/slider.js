@@ -1,3 +1,4 @@
+import { splitTextLines } from "../utils/splitText.js";
 import Component from "./index.js";
 /**
  * Scroll-driven slider inspired by the SProjectsFeatured controller.
@@ -26,9 +27,6 @@ export class Slider extends Component {
   }
 
   createTimeline() {
-    const { scene } = this.refs;
-
-    const sliderEl = this.refs.sliderContainer;
     const sliderItemEls = Array.from(this.refs.sliderItem);
 
     const n = 1 + sliderItemEls.length;
@@ -213,16 +211,11 @@ export class Slider extends Component {
 
       sliderItemEls.forEach((item, index) => {
         const itemMedia = item.querySelector(".js-media");
-        const itemTitleWrapper = item.querySelector(".js-title-wrapper");
         const itemTitleNumber = item.querySelector(".js-title-number");
-        const titleLines = SplitText.create(
+        const titleLines = splitTextLines(
           item.querySelector(".js-title-text"),
-          {
-            type: "lines",
-            mask: "lines",
-            autoSplit: true,
-          }
-        ).lines;
+          { useMask: true }
+        );
 
         const enterAt = index <= 2 ? 0.24 + 0.08 * index : 0.24 + index - 2;
         const centerAt = index;
@@ -270,29 +263,7 @@ export class Slider extends Component {
       });
     }
 
-    // tl.to(
-    //   sliderEl,
-    //   {
-    //     y: "-100%",
-    //     opacity: 0,
-    //     duration: 1,
-    //     ease: "power3.inOut",
-    //   },
-    //   n - 1.25
-    // );
-
-    // tl.fromTo(
-    //   scene,
-    //   { scale: 1 },
-    //   {
-    //     scale: 0.75,
-    //     duration: 1,
-    //     ease: "power3.inOut",
-    //   },
-    //   n - 1
-    // );
-
-    tl.call(() => {}, [], n);
+    tl.call(() => { }, [], n);
     this.toRevert = [tl];
     this.timelines.push(tl);
   }
