@@ -1,5 +1,6 @@
 import { Slider } from "./components/slider.js";
 import { Video } from "./components/video.js";
+import { ProductDetails } from "./components/product-details.js";
 
 class App {
   components;
@@ -16,8 +17,9 @@ class App {
     this.components = [];
     const slider = new Slider(".js-slider");
     const video = new Video(".js-video");
+    const productDetails = new ProductDetails(".js-product-details");
     video.setup?.();
-    this.components.push(slider, video);
+    this.components.push(slider, video, productDetails);
   }
 
   addEventListeners() {

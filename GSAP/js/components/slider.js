@@ -270,27 +270,27 @@ export class Slider extends Component {
       });
     }
 
-    tl.to(
-      sliderEl,
-      {
-        x: "-100%",
-        opacity: 0,
-        duration: 1,
-        ease: "power3.inOut",
-      },
-      n - 1.25
-    );
+    // tl.to(
+    //   sliderEl,
+    //   {
+    //     y: "-100%",
+    //     opacity: 0,
+    //     duration: 1,
+    //     ease: "power3.inOut",
+    //   },
+    //   n - 1.25
+    // );
 
-    tl.fromTo(
-      scene,
-      { scale: 1 },
-      {
-        scale: 0.75,
-        duration: 1,
-        ease: "power3.inOut",
-      },
-      n - 1
-    );
+    // tl.fromTo(
+    //   scene,
+    //   { scale: 1 },
+    //   {
+    //     scale: 0.75,
+    //     duration: 1,
+    //     ease: "power3.inOut",
+    //   },
+    //   n - 1
+    // );
 
     tl.call(() => {}, [], n);
     this.toRevert = [tl];

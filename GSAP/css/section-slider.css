@@ -1,13 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
-
 .section-one {
   height: 100lvh;
   background-color: #2a2a2a;
-}
-
-.section-three {
-  height: 100lvh;
-  background-color: #3a3a3a;
 }
 
 .section-two {
@@ -15,7 +8,7 @@
   --word-offset-x: var(--grid-abs-offset);
   --word-offset-y: calc(var(--font-size-h-lg) * 1.2857);
   position: relative;
-  height: calc(100lvh + var(--item-count) * 200lvh);
+  height: calc(100lvh + var(--item-count) * 150lvh);
 }
 
 @media only screen and (max-width: 1680px) {
@@ -137,5 +130,4 @@
 .col {
   height: 100%;
   width: 100%;
-  /* border: 1px dashed #555; */ /* Uncomment to see column guides */
 }
