@@ -5,13 +5,14 @@ export class ProductDetails extends Component {
   isInViewport
   timeline
   detailSequence
+  isMobile
 
   constructor(el) {
     super(el)
     if (!this.el || !globalThis.gsap || !globalThis.ScrollTrigger) return
 
     this.section = this.el
-
+    this.isMobile = globalThis.innerWidth <= 767
     this.init()
     this.setupTooltipLines()
   }
@@ -42,7 +43,7 @@ export class ProductDetails extends Component {
     gsap.set(titleText, { opacity: 0 })
     gsap.set(wordMask, { scaleX: 0, transformOrigin: 'left center' })
     gsap.set(productDetailItems, { opacity: 0 })
-    if (globalThis.innerWidth > 767) {
+    if (!this.isMobile) {
       gsap.set(productDetailItems, { y: "10%" })
     }
 
@@ -51,8 +52,8 @@ export class ProductDetails extends Component {
     tl.to(wordMask, { scaleX: 1, duration: 1, ease: 'power4.out', transformOrigin: 'left center' }, 0)
     tl.to(wordMask, { scaleX: 0, duration: 1, ease: 'power4.out', transformOrigin: 'right center' }, '>')
     tl.to(sectionTitle, { y: 0, duration: 1 }, ">")
-    tl.to(titleLeft, { x: "-5%" }, "<")
-    tl.to(titleRight, { x: "10%", y: "90%" }, "<")
+    tl.to(titleLeft, { x: this.isMobile ? "10%" : "-5%" }, "<")
+    tl.to(titleRight, { x: this.isMobile ? "-10%" : "10%", y: this.isMobile ? "100%" : "90%" }, "<")
     tl.to(productDetailItems, { opacity: 1 }, "-=0.2")
 
     // first item

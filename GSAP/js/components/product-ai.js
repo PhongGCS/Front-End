@@ -61,6 +61,7 @@ export class ProductAI extends Component {
       tl.to(titleTop, {
         fontSize: "48px",
         top: contentItem[0].offsetTop,
+        paddingRight: "32px",
         left: "50%",
         width: "50%",
       }, "<")

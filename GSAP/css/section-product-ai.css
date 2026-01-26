@@ -11,4 +11,13 @@
   padding: 0 32px;
   max-width: clamp(576px, 90lvw, 1920px);
   margin-inline: auto;
+  top: 50%;
+  max-height: calc(clamp(576px, 90lvw, 1920px) * 3 / 4);
+  transform: translateY(-50%);
+}
+
+@media only screen and (max-width: 767px) {
+  .section-product-ai .section__inner {
+    max-height: calc(clamp(576px, 90lvw, 1920px));
+  }
 }

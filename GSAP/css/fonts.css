@@ -87,15 +87,17 @@
   }
 }
 
-h1, .h-2xl {
-  font-size: clamp(36px, 6.5vw, 96px);
+h1,
+.h-2xl {
+  font-size: clamp(30px, 6.5vw, 96px);
   font-weight: var(--font-weight-h-2xl);
   line-height: var(--font-height-h-2xl);
   font-family: var(--font-family-h-2xl);
   letter-spacing: var(--font-spacing-h-2xl);
 }
 
-h2, .h-xl {
+h2,
+.h-xl {
   font-size: clamp(24px, 4vw + 0px, 48px);
   font-weight: var(--font-weight-h-xl);
   line-height: var(--font-height-h-xl);
@@ -103,7 +105,8 @@ h2, .h-xl {
   letter-spacing: var(--font-spacing-h-xl);
 }
 
-h3, .h-lg {
+h3,
+.h-lg {
   font-size: clamp(20px, 3.5vw, 24px);
   font-weight: var(--font-weight-h-lg);
   line-height: var(--font-height-h-lg);
@@ -111,7 +114,8 @@ h3, .h-lg {
   letter-spacing: var(--font-spacing-h-lg);
 }
 
-h4, .h-md {
+h4,
+.h-md {
   font-size: var(--font-size-h-md);
   font-weight: var(--font-weight-h-md);
   line-height: var(--font-height-h-md);
@@ -119,7 +123,8 @@ h4, .h-md {
   letter-spacing: var(--font-spacing-h-md);
 }
 
-h5, .h-sm {
+h5,
+.h-sm {
   font-size: var(--font-size-h-sm);
   font-weight: var(--font-weight-h-sm);
   line-height: var(--font-height-h-sm);
