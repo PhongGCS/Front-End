@@ -159,7 +159,7 @@ export class Video extends Component {
     // Play/pause to unlock currentTime updates on iOS.
     const p = this.video.play();
     if (p && typeof p.then === "function") {
-      p.then(() => this.video.pause()).catch(() => {});
+      p.then(() => this.video.pause()).catch(() => { });
     } else {
       this.video.pause();
     }

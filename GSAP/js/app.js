@@ -18,10 +18,17 @@ class App {
     this.components = [];
     const slider = new Slider(".js-slider");
     const video = new Video(".js-video");
-    const productDetails = new ProductDetails(".js-product-details");
-    const productAI = new ProductAI(".js-product-ai");
-    if (video) video.setup?.();
-    this.components.push(slider, video, productDetails, productAI);
+
+    video
+      .setup()
+      .then(() => {
+        const productDetails = new ProductDetails(".js-product-details");
+        const productAI = new ProductAI(".js-product-ai");
+        this.components.push(slider, video, productDetails, productAI);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   addEventListeners() {
@@ -36,19 +43,19 @@ class App {
     globalThis.requestAnimationFrame(() => {
       document.documentElement.style.setProperty(
         "--vw",
-        0.01 * windowWidth + "px"
+        0.01 * windowWidth + "px",
       );
       document.documentElement.style.setProperty(
         "--cw",
-        0.01 * clientWidth + "px"
+        0.01 * clientWidth + "px",
       );
       document.documentElement.style.setProperty(
         "--vh",
-        0.01 * windowHeight + "px"
+        0.01 * windowHeight + "px",
       );
       document.documentElement.style.setProperty(
         "--ch",
-        0.01 * clientHeight + "px"
+        0.01 * clientHeight + "px",
       );
     });
   }

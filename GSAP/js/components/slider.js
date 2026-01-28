@@ -28,6 +28,7 @@ export class Slider extends Component {
 
   createTimeline() {
     const sliderItemEls = Array.from(this.refs.sliderItem);
+    const { sectionTitle, titleHeading, titleText, titleTextHidden } = this.refs;
 
     const n = 1 + sliderItemEls.length;
     this.toRevert?.forEach((e) => {
@@ -35,14 +36,38 @@ export class Slider extends Component {
     });
     this.toRevert = [];
     this.timelines = [];
-    const tl = gsap.timeline({
+
+    const titleTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionTitle,
+        start: "top 50%",
+        end: "+=100%",
+        scrub: 1,
+      },
+    });
+
+    gsap.set(sectionTitle, { y: "-250%" });
+    gsap.set(titleHeading, { fontSize: "clamp(30px, 6.5vw, 96px)" });
+    gsap.set(titleText[0], { x: "25%", y: "-50%" });
+    gsap.set(titleText[1], { x: "-35%", y: "50%" });
+
+    titleTl.to(sectionTitle, { y: "48px", duration: 1 });
+    titleTl.to(titleText[0], { x: "0%", y: "0%" }, "<");
+    titleTl.to(titleText[1], { x: "0%", y: "0%" }, "<");
+    titleTl.to(titleTextHidden, { opacity: 1, width: "auto", display: "inline-block", duration: 1 }, "<");
+    titleTl.to(titleHeading, { fontSize: "clamp(24px, 6.5vw, 48px)" }, "<");
+
+    titleTl.set(titleHeading, { fontSize: "clamp(24px, 4vw, 48px)" });
+
+    const sliderTl = gsap.timeline({
       scrollTrigger: {
         trigger: this.el,
-        start: "top 0%",
+        start: "top 70%",
         end: "bottom 50%",
         scrub: 1,
       },
     });
+
 
     if (sliderItemEls.length > 0) {
       const itemWidth = sliderItemEls[0].offsetWidth;
@@ -62,7 +87,7 @@ export class Slider extends Component {
         enterAt,
         centerAt,
       }) => {
-        tl.fromTo(
+        sliderTl.fromTo(
           item,
           { scale: 0.75, clipPath: o },
           { scale: 1, clipPath: i, duration: 0.32, ease: "expo.out" },
@@ -70,7 +95,7 @@ export class Slider extends Component {
         );
 
         if (itemMedia) {
-          tl.fromTo(
+          sliderTl.fromTo(
             itemMedia,
             { scale: 1.2 },
             { scale: 1, duration: 1, ease: "expo.out" },
@@ -78,14 +103,14 @@ export class Slider extends Component {
           );
         }
 
-        tl.fromTo(
+        sliderTl.fromTo(
           titleLines,
           { y: "100%" },
           { y: "0%", duration: 0.48, ease: "expo.out" },
           centerAt + 0.4
         );
 
-        tl.fromTo(
+        sliderTl.fromTo(
           titleNumber,
           { opacity: 0, y: "50%" },
           { opacity: 1, y: "0%", duration: 0.48, ease: "expo.out" },
@@ -102,7 +127,7 @@ export class Slider extends Component {
         centerAt,
         parkedScale,
       }) => {
-        tl.fromTo(
+        sliderTl.fromTo(
           item,
           {
             opacity: 0,
@@ -123,17 +148,17 @@ export class Slider extends Component {
           enterAt
         );
 
-        tl.set(item, { zIndex: 1 }, centerAt);
-        tl.set(item, { zIndex: 2 }, centerAt);
+        sliderTl.set(item, { zIndex: 1 }, centerAt);
+        sliderTl.set(item, { zIndex: 2 }, centerAt);
 
-        tl.to(item, { x: 0, y: 0, duration: 1, ease: "expo.inOut" }, centerAt);
+        sliderTl.to(item, { x: 0, y: 0, duration: 1, ease: "expo.inOut" }, centerAt);
 
-        tl.to(item, { scale: 1, duration: 1, ease: "expo.inOut" }, centerAt);
+        sliderTl.to(item, { scale: 1, duration: 1, ease: "expo.inOut" }, centerAt);
 
-        tl.to(item, { clipPath: i, duration: 1, ease: "expo.inOut" }, centerAt);
+        sliderTl.to(item, { clipPath: i, duration: 1, ease: "expo.inOut" }, centerAt);
 
         if (itemMedia) {
-          tl.fromTo(
+          sliderTl.fromTo(
             itemMedia,
             { scale: 1.2 },
             { scale: 1, duration: 1, ease: "expo.out" },
@@ -141,14 +166,14 @@ export class Slider extends Component {
           );
         }
 
-        tl.fromTo(
+        sliderTl.fromTo(
           titleLines,
           { y: "100%" },
           { y: "0%", duration: 0.48, ease: "expo.out" },
           centerAt + 0.5
         );
 
-        tl.fromTo(
+        sliderTl.fromTo(
           itemTitleNumber,
           { opacity: 0, y: "50%" },
           { opacity: 1, y: "0%", duration: 0.4, ease: "expo.out" },
@@ -165,7 +190,7 @@ export class Slider extends Component {
         exitScale,
         index,
       }) => {
-        tl.to(
+        sliderTl.to(
           item,
           {
             scale: exitScale,
@@ -177,10 +202,10 @@ export class Slider extends Component {
           exitAt
         );
 
-        tl.to(item, { clipPath: s, duration: 1, ease: "expo.inOut" }, exitAt);
+        sliderTl.to(item, { clipPath: s, duration: 1, ease: "expo.inOut" }, exitAt);
 
         if (itemMedia) {
-          tl.fromTo(
+          sliderTl.fromTo(
             itemMedia,
             { scale: 1 },
             { scale: 1.2, duration: 1, ease: "expo.out", immediateRender: !1 },
@@ -188,13 +213,13 @@ export class Slider extends Component {
           );
         }
 
-        tl.to(
+        sliderTl.to(
           titleLines,
           { y: "100%", duration: 0.48, ease: "expo.in" },
           exitAt + 0.12
         );
 
-        tl.to(
+        sliderTl.to(
           itemTitleNumber,
           { opacity: 0, y: "50%", duration: 0.4, ease: "expo.in" },
           exitAt + 0.12
@@ -202,7 +227,7 @@ export class Slider extends Component {
       };
 
       const animateCleanup = ({ item, cleanupAt, exitScale }) => {
-        tl.to(
+        sliderTl.to(
           item,
           { scale: exitScale, opacity: 0, duration: 1, ease: "power4.inOut" },
           cleanupAt
@@ -263,8 +288,10 @@ export class Slider extends Component {
       });
     }
 
-    tl.call(() => { }, [], n);
-    this.toRevert = [tl];
-    this.timelines.push(tl);
+    sliderTl.to(sectionTitle, { opacity: 0, duration: 0.5 }, ">");
+
+    sliderTl.call(() => { }, [], n);
+    this.toRevert = [sliderTl];
+    this.timelines.push(sliderTl);
   }
 }

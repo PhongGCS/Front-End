@@ -1,9 +1,6 @@
 import Component from './index.js'
 
 export class ProductDetails extends Component {
-  section
-  isInViewport
-  timeline
   detailSequence
   isMobile
 
@@ -11,7 +8,7 @@ export class ProductDetails extends Component {
     super(el)
     if (!this.el || !globalThis.gsap || !globalThis.ScrollTrigger) return
 
-    this.section = this.el
+
     this.isMobile = globalThis.innerWidth <= 767
     this.init()
     this.setupTooltipLines()
