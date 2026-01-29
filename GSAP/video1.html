@@ -7,28 +7,76 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/ScrollSmoother.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body class="bg-gray-900 text-white font-sans">
-
-    <div class="h-screen flex items-center justify-center bg-blue-600">
-        <h1 class="text-4xl font-bold">Cuộn xuống để xem video (7 đoạn x 5s)</h1>
-    </div>
-
-    <section id="brxe-lriwhe" class="brxe-section 100vh">
-        <div id="brxe-phfxpn" class="container mx-auto">
-            <div id="brxe-rddhvy" data-script-id="rddhvy" class="brxe-heka-video">
-                <div id='rddhvy' class=' bg-black video-section-heka container mx-auto' data-hls-url='https://pub-c25f583359a74339b1ccb56b497f21bd.r2.dev/heka/index.m3u8'>
-                    <video class="video-heka" muted playsinline></video>
-                </div>
-            </div>
+    <div id="smooth-wrapper">
+      <div id="smooth-content">
+        <div class="h-screen flex items-center justify-center bg-blue-600">
+            <h1 class="text-4xl font-bold">Cuộn xuống để xem video (7 đoạn x 5s)</h1>
         </div>
-    </section>
+        <section class="brxe-xasjcp bg-black brxe-section  video-section-heka h-screen">
+          <div class="brxe-phfxpn brxe-container">
+            <div data-script-id="rddhvy-lriwhe" class="brxe-rddhvy brxe-heka-video h-screen">
+              <div id="rddhvy" class=" bg-black flex items-end h-full video-section-heka-src container mx-auto" data-hls-url="https://pub-c25f583359a74339b1ccb56b497f21bd.r2.dev/heka/index.m3u8">
+                <div id="log" class="absolute bottom-50% left-0 w-full h-10"></div>
+                <div class="absolute top-[40px] text-center w-full h-[40vh] left-0">
+                  <div data-index="0" class="absolute flex flex-col justify-center items-center w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 video-js-content" style="opacity: 0;">
+                    <div class="max-w-[500px] text-center">
+                      <h3 class="text-[48px]">Hoàn toàn thích ứng với bạn trong thời gian thực</h3>
+                      <p class="text-[18px]font-semibold"> Khác với các loại nệm truyền thống có cấu trúc cố định, không thể đáp ứng được sự thay đổi tự nhiên của đường cong cổ – vai – gáy theo từng tư thế ngủ </p>
+                    </div>
+                  </div>
+                  <div data-index="1" class="absolute flex flex-col justify-center items-center w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 video-js-content" style="opacity: 0;">
+                    <div class="max-w-[500px] text-center">
+                      <h3 class="text-[48px]">Khác với các loại nệm truyền thống</h3>
+                      <p class="text-[18px]font-semibold"> không thể đáp ứng được sự thay đổi tự nhiên của đường cong cổ – vai – gáy theo từng tư thế ngủ. Khác với các loại nệm truyền thống có cấu trúc cố định </p>
+                    </div>
+                  </div>
+                  <div data-index="2" class="absolute flex flex-col justify-center items-center w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 video-js-content" style="opacity: 0;">
+                    <div class="max-w-[500px] text-center">
+                      <h3 class="text-[48px]">Khác với các loại nệm truyền thống 003</h3>
+                      <p class="text-[18px]font-semibold"> không thể đáp ứng được sự thay đổi tự nhiên của đường cong cổ – vai – gáy theo từng tư thế ngủ. Khác với các loại nệm truyền thống có cấu trúc cố định </p>
+                    </div>
+                  </div>
+                  <div data-index="3" class="absolute flex flex-col justify-center items-center w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 video-js-content" style="opacity: 1;">
+                    <div class="max-w-[500px] text-center">
+                      <h3 class="text-[48px]">Khác với các loại nệm truyền thống 02</h3>
+                      <p class="text-[18px]font-semibold"> Khác với các loại nệm truyền thống có cấu trúc cố định, không thể đáp ứng được sự thay đổi tự nhiên của đường cong cổ – vai – gáy theo từng tư thế ngủ </p>
+                    </div>
+                  </div>
+                  <div data-index="4" class="absolute flex flex-col justify-center items-center w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 video-js-content" style="opacity: 0;">
+                    <div class="max-w-[500px] text-center">
+                      <h3 class="text-[48px]">Hoàn toàn thích ứng với bạn trong thời gian thực</h3>
+                      <p class="text-[18px]font-semibold"> Khác với các loại nệm truyền thống có cấu trúc cố định, không thể đáp ứng được sự thay đổi tự nhiên của đường cong cổ – vai – gáy theo từng tư thế ngủ </p>
+                    </div>
+                  </div>
+                  <div data-index="5" class="absolute flex flex-col justify-center items-center w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 video-js-content" style="opacity: 0;">
+                    <div class="max-w-[500px] text-center">
+                      <h3 class="text-[48px]">Khác với các loại nệm truyền thống 003</h3>
+                      <p class="text-[18px]font-semibold"> không thể đáp ứng được sự thay đổi tự nhiên của đường cong cổ – vai – gáy theo từng tư thế ngủ. Khác với các loại nệm truyền thống có cấu trúc cố định </p>
+                    </div>
+                  </div>
+                  <div data-index="6" class="absolute flex flex-col justify-center items-center w-full h-full top-0 left-0 opacity-0 flex flex-col gap-2 video-js-content" style="opacity: 0;">
+                    <div class="max-w-[500px] text-center">
+                      <h3 class="text-[48px]">Khác với các loại nệm truyền thống 004</h3>
+                      <p class="text-[18px]font-semibold"> không thể đáp ứng được sự thay đổi tự nhiên của đường cong cổ – vai – gáy theo từng tư thế ngủ. Khác với các loại nệm truyền thống có cấu trúc cố định </p>
+                    </div>
+                  </div>
+                </div>
+                <video class="video-heka max-w-[900px] mx-auto" muted="" playsinline=""></video>
+              </div>
+    
+            </div>
+          </div>
+        </section>
 
-    <div class="h-screen flex items-center justify-center bg-green-600">
-        <h1 class="text-4xl font-bold">Chúc mừng! Bạn đã xem hết 7 lần cuộn.</h1>
+        <div class="h-screen flex items-center justify-center bg-green-600">
+            <h1 class="text-4xl font-bold">Chúc mừng! Bạn đã xem hết 7 lần cuộn.</h1>
+        </div>
+      </div>
     </div>
-
-<script type="module" src="/GSAP/js/video1.js"></script>
-</body>
+    <script src="/GSAP/js/video1.js"></script>
+  </body>
 </html>
