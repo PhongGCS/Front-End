@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         onUpdate: (self) => {
             if (self.isActive) {
-                log(`scrub ${Math.round(self.progress * 100)}%`);
+                // log(`scrub ${Math.round(self.progress * 100)}%`);
             }
         }
     });
@@ -99,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const lastTime = DURATION_POINTS[NUM_SEGMENTS];
             video.currentTime = lastTime;
             showContent(NUM_SEGMENTS - 1, true);
-            setScrollLock(false);
         }
     }
 
@@ -108,7 +107,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (direction === -1) {
             // Scroll lên -> Thoát luôn, giữ nguyên Index
             releaseScrollSmooth('up');
-            setScrollLock(false);
             return;
         } 
         
@@ -120,11 +118,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (currentIndex >= NUM_SEGMENTS - 1) {
             // Hết video -> Thoát xuống
             releaseScrollSmooth('down');
-            setScrollLock(false);
         } else {
             // Còn video -> Chạy tiếp đoạn kế
             playSegment(currentIndex + 1);
-            setScrollLock(true);
         }
     }
 
@@ -192,6 +188,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         isAnimating = true;
         isLocked = true;
+        setScrollLock(true);
         currentIndex = targetIndex;
         showContent(currentIndex);
 
