@@ -1,203 +1,210 @@
 document.addEventListener('DOMContentLoaded', function () {
     gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
-    const videoSection = document.querySelector('.video-section-heka');
-    if (!videoSection) return;
+    const SELECTORS = {
+        section: '.video-section-heka',
+        video: '.video-heka',
+        source: '.video-section-heka-src',
+        content: '.video-js-content',
+        smootherWrapper: '#smooth-wrapper',
+        smootherContent: '#smooth-content'
+    };
 
-    const video = videoSection.querySelector('.video-heka');
-    const videoSrc = videoSection.querySelector('.video-section-heka-src').dataset.hlsUrl;
-    const contentItems = document.querySelectorAll('.video-js-content');
-    if (!video || !videoSrc) return;
-
-    // --- CẤU HÌNH ---
-    const NUM_SEGMENTS = 7;
-    const DURATION_POINTS = [0, 3.5, 7.5, 11, 14, 19, 21, 25];
-    // --- STATE ---
-    let currentIndex = -1; 
-    let isAnimating = false;
-    let isLocked = false;
-
-    // --- HLS INIT ---
-    if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(videoSrc);
-        hls.attachMedia(video);
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = videoSrc;
-    }
-
-    const smoothWrapper = document.querySelector('#smooth-wrapper');
-    const smoothContent = document.querySelector('#smooth-content');
-    const smoother = (typeof ScrollSmoother !== 'undefined' && smoothWrapper && smoothContent)
-        ? ScrollSmoother.create({
-            wrapper: '#smooth-wrapper',
-            content: '#smooth-content',
+    const CONFIG = {
+        numSegments: 7,
+        durationPoints: [0, 3.5, 7.5, 11, 14, 19, 21, 25],
+        pinScrollDistance: '+=1000',
+        smoother: {
             smooth: 0.8,
             effects: false,
             normalizeScroll: true
-        })
-        : null;
+        }
+    };
+
+    const videoSection = document.querySelector(SELECTORS.section);
+    if (!videoSection) return;
+
+    const video = videoSection.querySelector(SELECTORS.video);
+    const sourceEl = videoSection.querySelector(SELECTORS.source);
+    const videoSrc = sourceEl ? sourceEl.dataset.hlsUrl : '';
+    const contentItems = Array.from(document.querySelectorAll(SELECTORS.content));
+    if (!video || !videoSrc) return;
+
+    let currentIndex = -1;
+    let isAnimating = false;
+    let isLocked = false;
+
+    initHls(video, videoSrc);
+    const smoother = initSmoother();
+    const intentObserver = createIntentObserver();
+    const st = createScrollTrigger();
+
+    intentObserver.disable();
+
+    function initHls(targetVideo, src) {
+        if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(src);
+            hls.attachMedia(targetVideo);
+            return;
+        }
+
+        if (targetVideo.canPlayType('application/vnd.apple.mpegurl')) {
+            targetVideo.src = src;
+        }
+    }
+
+    function initSmoother() {
+        const wrapper = document.querySelector(SELECTORS.smootherWrapper);
+        const content = document.querySelector(SELECTORS.smootherContent);
+        if (!wrapper || !content || typeof ScrollSmoother === 'undefined') return null;
+
+        return ScrollSmoother.create({
+            wrapper: SELECTORS.smootherWrapper,
+            content: SELECTORS.smootherContent,
+            smooth: CONFIG.smoother.smooth,
+            effects: CONFIG.smoother.effects,
+            normalizeScroll: CONFIG.smoother.normalizeScroll
+        });
+    }
 
     function setScrollLock(locked) {
         if (smoother) smoother.paused(locked);
-        if (videoSection) {
-            videoSection.style.touchAction = locked ? 'none' : '';
-        }
+        videoSection.style.touchAction = locked ? 'none' : '';
     }
 
-    // --- 1. OBSERVER (QUẢN LÝ HÀNH VI CUỘN) ---
-    const isTouch = ScrollTrigger.isTouch === 1;
-    const intentObserver = ScrollTrigger.observe({
-		target: ".video-section-heka",
-        type: isTouch ? "touch" : "wheel",
-        onUp: () => handleDirection(isTouch ? 1 : -1),
-        onDown: () => handleDirection(isTouch ? -1 : 1),
-        tolerance: 10,
-        preventDefault: false
-    });
-    intentObserver.disable();
+    function createIntentObserver() {
+        const isTouch = ScrollTrigger.isTouch === 1;
+        const upDir = isTouch ? 1 : -1;
+        const downDir = isTouch ? -1 : 1;
 
-    // --- 2. SCROLLTRIGGER (CÁI NEO) ---
-    const st = ScrollTrigger.create({
-        trigger: videoSection,
-        start: "top top",
-        end: "+=1000",
-        fastScrollEnd: true,
-        anticipatePin: 1,
-        pin: true,
-        scrub: true,
-        onEnter: () => {
-            intentObserver.enable();
-            restoreVideoState();
-        },
-        onEnterBack: () => {
-            intentObserver.enable();
-            restoreVideoState();
-        },
-        onLeave: () => {
-            intentObserver.disable();
-        },
-        onLeaveBack: () => {
-            intentObserver.disable();
-        },
-        onUpdate: (self) => {
-            if (self.isActive) {
-                // log(`scrub ${Math.round(self.progress * 100)}%`);
-            }
-        }
-    });
-
-    // --- 3. LOGIC KHÔI PHỤC TRẠNG THÁI VIDEO ---
-    function restoreVideoState() {
-        if (currentIndex >= 0 && currentIndex < NUM_SEGMENTS) {
-            const endOfCurrentSegment = DURATION_POINTS[currentIndex + 1];
-            if (Number.isFinite(endOfCurrentSegment)) {
-                video.currentTime = endOfCurrentSegment;
-                showContent(currentIndex, true);
-            }
-        } else if (currentIndex >= NUM_SEGMENTS - 1) {
-            const lastTime = DURATION_POINTS[NUM_SEGMENTS];
-            video.currentTime = lastTime;
-            showContent(NUM_SEGMENTS - 1, true);
-        }
+        return ScrollTrigger.observe({
+            target: videoSection,
+            type: isTouch ? 'touch' : 'wheel',
+            onUp: () => handleDirection(upDir),
+            onDown: () => handleDirection(downDir),
+            tolerance: 10,
+            preventDefault: false
+        });
     }
 
-    // --- 4. XỬ LÝ HƯỚNG CUỘN ---
-    function handleDirection(direction) {
-        if (direction === -1) {
-            // Scroll lên -> Thoát luôn, giữ nguyên Index
-            releaseScrollSmooth('up');
-            return;
-        } 
-        
-        if (isAnimating || isLocked) {
-            return;
-        }
-
-        // === TRƯỜNG HỢP CUỘN XUỐNG (DOWN) ===
-        if (currentIndex >= NUM_SEGMENTS - 1) {
-            // Hết video -> Thoát xuống
-            releaseScrollSmooth('down');
-        } else {
-            // Còn video -> Chạy tiếp đoạn kế
-            playSegment(currentIndex + 1);
-        }
-    }
-
-    function log(message) {
-        const el = document.getElementById('log');
-        if (el) el.innerHTML = `${message}`;
-    }
-    // --- 5. HÀM THOÁT MƯỢT ---
-    function releaseScrollSmooth(direction) {
-        intentObserver.disable();
-        setScrollLock(false);
-        
-        const targetScroll = direction === 'down' 
-            ? st.end + 5 
-            : st.start - 5;
-
-        if (smoother) {
-            smoother.scrollTo(targetScroll, true);
-        } else {
-            gsap.to(window, {
-                scrollTo: targetScroll,
-                duration: 0.6,
-                ease: "power2.inOut"
-            });
-        }
-    }
-    
-    function showContent(index, instant = false) {
-        if (!contentItems || contentItems.length === 0) return;
-
-
-        contentItems.forEach((item, i) => {
-            const itemIndex = parseInt(item.getAttribute('data-index'));
-            
-            if (itemIndex === index) {
-                // Show active item
-                if (instant) {
-                    gsap.set(item, { opacity: 1 });
-                } else {
-                    gsap.to(item, {
-                        opacity: 1,
-                        duration: 0.6,
-                        ease: "power2.out"
-                    });
-                }
-            } else {
-                // Hide other items
-                if (instant) {
-                    gsap.set(item, { opacity: 0 });
-                } else {
-                    gsap.to(item, {
-                        opacity: 0,
-                        duration: 0.4,
-                        ease: "power2.in"
-                    });
+    function createScrollTrigger() {
+        return ScrollTrigger.create({
+            trigger: videoSection,
+            start: 'top top',
+            end: CONFIG.pinScrollDistance,
+            fastScrollEnd: true,
+            anticipatePin: 1,
+            pin: true,
+            scrub: true,
+            onEnter: () => {
+                intentObserver.enable();
+                restoreVideoState();
+            },
+            onEnterBack: () => {
+                intentObserver.enable();
+                restoreVideoState();
+            },
+            onLeave: () => {
+                intentObserver.disable();
+            },
+            onLeaveBack: () => {
+                intentObserver.disable();
+            },
+            onUpdate: (self) => {
+                if (self.isActive) {
+                    // log(`scrub ${Math.round(self.progress * 100)}%`);
                 }
             }
         });
     }
 
-    // --- 6. VIDEO PLAYER ---
+    function restoreVideoState() {
+        if (currentIndex >= 0 && currentIndex < CONFIG.numSegments) {
+            const endOfCurrentSegment = CONFIG.durationPoints[currentIndex + 1];
+            if (Number.isFinite(endOfCurrentSegment)) {
+                video.currentTime = endOfCurrentSegment;
+                showContent(currentIndex, true);
+            }
+            return;
+        }
+
+        if (currentIndex >= CONFIG.numSegments - 1) {
+            const lastTime = CONFIG.durationPoints[CONFIG.numSegments];
+            video.currentTime = lastTime;
+            showContent(CONFIG.numSegments - 1, true);
+        }
+    }
+
+    function handleDirection(direction) {
+        if (direction === -1) {
+            releaseScrollSmooth('up');
+            return;
+        }
+
+        if (isAnimating || isLocked) return;
+
+        if (currentIndex >= CONFIG.numSegments - 1) {
+            releaseScrollSmooth('down');
+            return;
+        }
+
+        playSegment(currentIndex + 1);
+    }
+
+    function releaseScrollSmooth(direction) {
+        intentObserver.disable();
+        setScrollLock(false);
+
+        const targetScroll = direction === 'down' ? st.end + 5 : st.start - 5;
+        if (smoother) {
+            smoother.scrollTo(targetScroll, true);
+            return;
+        }
+
+        gsap.to(window, {
+            scrollTo: targetScroll,
+            duration: 0.6,
+            ease: 'power2.inOut'
+        });
+    }
+
+    function showContent(index, instant = false) {
+        if (contentItems.length === 0) return;
+
+        contentItems.forEach((item) => {
+            const itemIndex = parseInt(item.getAttribute('data-index'), 10);
+            const isActive = itemIndex === index;
+            const props = { opacity: isActive ? 1 : 0 };
+
+            if (instant) {
+                gsap.set(item, props);
+                return;
+            }
+
+            gsap.to(item, {
+                ...props,
+                duration: isActive ? 0.6 : 0.4,
+                ease: isActive ? 'power2.out' : 'power2.in'
+            });
+        });
+    }
+
     function playSegment(targetIndex) {
-        // log(`playSegment ${targetIndex}`)
-        if (targetIndex < 0 || targetIndex >= NUM_SEGMENTS) return;
-        
+        if (targetIndex < 0 || targetIndex >= CONFIG.numSegments) return;
+
         isAnimating = true;
         isLocked = true;
         setScrollLock(true);
         currentIndex = targetIndex;
         showContent(currentIndex);
 
-        const startTime = DURATION_POINTS[currentIndex];
-        const endTime = DURATION_POINTS[currentIndex + 1];
+        const startTime = CONFIG.durationPoints[currentIndex];
+        const endTime = CONFIG.durationPoints[currentIndex + 1];
         const duration = endTime - startTime;
 
         video.currentTime = startTime;
-        video.play().catch(e => console.log("Play interrupted:", e));
+        video.play().catch((e) => console.log('Play interrupted:', e));
 
         gsap.delayedCall(duration, () => {
             video.pause();
@@ -205,5 +212,10 @@ document.addEventListener('DOMContentLoaded', function () {
             isLocked = false;
             setScrollLock(false);
         });
+    }
+
+    function log(message) {
+        const el = document.getElementById('log');
+        if (el) el.innerHTML = `${message}`;
     }
 });
