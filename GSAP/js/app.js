@@ -19,16 +19,10 @@ class App {
     const slider = new Slider(".js-slider");
     const video = new Video(".js-video");
 
-    video
-      .setup()
-      .then(() => {
-        const productDetails = new ProductDetails(".js-product-details");
-        const productAI = new ProductAI(".js-product-ai");
-        this.components.push(slider, video, productDetails, productAI);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    const productDetails = new ProductDetails(".js-product-details");
+    const productAI = new ProductAI(".js-product-ai");
+
+    this.components.push(slider, video, productDetails, productAI);
   }
 
   addEventListeners() {

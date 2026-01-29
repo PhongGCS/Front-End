@@ -4,6 +4,7 @@ export default class Component {
   toRevert = [];
 
   constructor(el) {
+    gsap.registerPlugin(ScrollTrigger);
     this.el = document.querySelector(el);
     this.getRefs();
 
@@ -36,7 +37,9 @@ export default class Component {
       .split(/[\W_]+/)
       .filter(Boolean)
       .map((part, index) =>
-        index === 0 ? part.toLowerCase() : part[0].toUpperCase() + part.slice(1)
+        index === 0
+          ? part.toLowerCase()
+          : part[0].toUpperCase() + part.slice(1),
       )
       .join("");
   }

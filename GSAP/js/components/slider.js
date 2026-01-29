@@ -24,11 +24,45 @@ export class Slider extends Component {
     ScrollTrigger.addEventListener("refreshInit", () => {
       this.createTimeline();
     });
+    this.onResize();
+
+    window.addEventListener("resize", this.onResize.bind(this));
+  }
+
+  onResize() {
+    const windowWidth = window.innerWidth;
+    const clientWidth = document.documentElement.clientWidth;
+    const windowHeight = window.innerHeight;
+    const clientHeight = document.documentElement.clientHeight;
+    globalThis.requestAnimationFrame(() => {
+      document.documentElement.style.setProperty(
+        "--vw",
+        0.01 * windowWidth + "px",
+      );
+      document.documentElement.style.setProperty(
+        "--cw",
+        0.01 * clientWidth + "px",
+      );
+      document.documentElement.style.setProperty(
+        "--vh",
+        0.01 * windowHeight + "px",
+      );
+      document.documentElement.style.setProperty(
+        "--ch",
+        0.01 * clientHeight + "px",
+      );
+    });
   }
 
   createTimeline() {
     const sliderItemEls = Array.from(this.refs.sliderItem);
-    const { sectionTitle, titleHeading, titleText, titleTextHidden } = this.refs;
+    const {
+      sectionTitle,
+      titleHeading,
+      titleText,
+      titleTextHidden,
+      titleDescription,
+    } = this.refs;
 
     const n = 1 + sliderItemEls.length;
     this.toRevert?.forEach((e) => {
@@ -50,14 +84,19 @@ export class Slider extends Component {
     gsap.set(titleHeading, { fontSize: "clamp(30px, 6.5vw, 96px)" });
     gsap.set(titleText[0], { x: "25%", y: "-50%" });
     gsap.set(titleText[1], { x: "-35%", y: "50%" });
+    gsap.set(titleDescription, { opacity: 0 });
 
-    titleTl.to(sectionTitle, { y: "48px", duration: 1 });
+    titleTl.to(sectionTitle, { y: "24px" });
     titleTl.to(titleText[0], { x: "0%", y: "0%" }, "<");
     titleTl.to(titleText[1], { x: "0%", y: "0%" }, "<");
-    titleTl.to(titleTextHidden, { opacity: 1, width: "auto", display: "inline-block", duration: 1 }, "<");
+    titleTl.to(
+      titleTextHidden,
+      { opacity: 1, width: "auto", display: "inline-block" },
+      "<",
+    );
     titleTl.to(titleHeading, { fontSize: "clamp(24px, 6.5vw, 48px)" }, "<");
-
-    titleTl.set(titleHeading, { fontSize: "clamp(24px, 4vw, 48px)" });
+    titleTl.to(titleDescription, { opacity: 1 }, ">");
+    titleTl.set(titleHeading, { fontSize: "clamp(24px, 4vw, 48px)" }, ">");
 
     const sliderTl = gsap.timeline({
       scrollTrigger: {
@@ -67,7 +106,6 @@ export class Slider extends Component {
         scrub: 1,
       },
     });
-
 
     if (sliderItemEls.length > 0) {
       const itemWidth = sliderItemEls[0].offsetWidth;
@@ -91,7 +129,7 @@ export class Slider extends Component {
           item,
           { scale: 0.75, clipPath: o },
           { scale: 1, clipPath: i, duration: 0.32, ease: "expo.out" },
-          enterAt
+          enterAt,
         );
 
         if (itemMedia) {
@@ -99,7 +137,7 @@ export class Slider extends Component {
             itemMedia,
             { scale: 1.2 },
             { scale: 1, duration: 1, ease: "expo.out" },
-            enterAt
+            enterAt,
           );
         }
 
@@ -107,14 +145,14 @@ export class Slider extends Component {
           titleLines,
           { y: "100%" },
           { y: "0%", duration: 0.48, ease: "expo.out" },
-          centerAt + 0.4
+          centerAt + 0.4,
         );
 
         sliderTl.fromTo(
           titleNumber,
           { opacity: 0, y: "50%" },
           { opacity: 1, y: "0%", duration: 0.48, ease: "expo.out" },
-          centerAt + 0.48
+          centerAt + 0.48,
         );
       };
 
@@ -145,24 +183,36 @@ export class Slider extends Component {
             duration: centerAt - enterAt,
             ease: "power4.out",
           },
-          enterAt
+          enterAt,
         );
 
         sliderTl.set(item, { zIndex: 1 }, centerAt);
         sliderTl.set(item, { zIndex: 2 }, centerAt);
 
-        sliderTl.to(item, { x: 0, y: 0, duration: 1, ease: "expo.inOut" }, centerAt);
+        sliderTl.to(
+          item,
+          { x: 0, y: 0, duration: 1, ease: "expo.inOut" },
+          centerAt,
+        );
 
-        sliderTl.to(item, { scale: 1, duration: 1, ease: "expo.inOut" }, centerAt);
+        sliderTl.to(
+          item,
+          { scale: 1, duration: 1, ease: "expo.inOut" },
+          centerAt,
+        );
 
-        sliderTl.to(item, { clipPath: i, duration: 1, ease: "expo.inOut" }, centerAt);
+        sliderTl.to(
+          item,
+          { clipPath: i, duration: 1, ease: "expo.inOut" },
+          centerAt,
+        );
 
         if (itemMedia) {
           sliderTl.fromTo(
             itemMedia,
             { scale: 1.2 },
             { scale: 1, duration: 1, ease: "expo.out" },
-            centerAt + 0.4
+            centerAt + 0.4,
           );
         }
 
@@ -170,14 +220,14 @@ export class Slider extends Component {
           titleLines,
           { y: "100%" },
           { y: "0%", duration: 0.48, ease: "expo.out" },
-          centerAt + 0.5
+          centerAt + 0.5,
         );
 
         sliderTl.fromTo(
           itemTitleNumber,
           { opacity: 0, y: "50%" },
           { opacity: 1, y: "0%", duration: 0.4, ease: "expo.out" },
-          centerAt + 0.5
+          centerAt + 0.5,
         );
       };
 
@@ -199,30 +249,34 @@ export class Slider extends Component {
             duration: 1,
             ease: "expo.inOut",
           },
-          exitAt
+          exitAt,
         );
 
-        sliderTl.to(item, { clipPath: s, duration: 1, ease: "expo.inOut" }, exitAt);
+        sliderTl.to(
+          item,
+          { clipPath: s, duration: 1, ease: "expo.inOut" },
+          exitAt,
+        );
 
         if (itemMedia) {
           sliderTl.fromTo(
             itemMedia,
             { scale: 1 },
             { scale: 1.2, duration: 1, ease: "expo.out", immediateRender: !1 },
-            exitAt + 0.4
+            exitAt + 0.4,
           );
         }
 
         sliderTl.to(
           titleLines,
           { y: "100%", duration: 0.48, ease: "expo.in" },
-          exitAt + 0.12
+          exitAt + 0.12,
         );
 
         sliderTl.to(
           itemTitleNumber,
           { opacity: 0, y: "50%", duration: 0.4, ease: "expo.in" },
-          exitAt + 0.12
+          exitAt + 0.12,
         );
       };
 
@@ -230,7 +284,7 @@ export class Slider extends Component {
         sliderTl.to(
           item,
           { scale: exitScale, opacity: 0, duration: 1, ease: "power4.inOut" },
-          cleanupAt
+          cleanupAt,
         );
       };
 
@@ -239,7 +293,7 @@ export class Slider extends Component {
         const itemTitleNumber = item.querySelector(".js-title-number");
         const titleLines = splitTextLines(
           item.querySelector(".js-title-text"),
-          { useMask: true }
+          { useMask: true },
         );
 
         const enterAt = index <= 2 ? 0.24 + 0.08 * index : 0.24 + index - 2;
@@ -289,9 +343,15 @@ export class Slider extends Component {
     }
 
     sliderTl.to(sectionTitle, { opacity: 0, duration: 0.5 }, ">");
+    sliderTl.to(titleDescription, { opacity: 0, duration: 0.5 }, "<");
 
-    sliderTl.call(() => { }, [], n);
+    sliderTl.call(() => {}, [], n);
     this.toRevert = [sliderTl];
     this.timelines.push(sliderTl);
   }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Keep a reference to avoid "no-new" lint and allow debugging.
+  globalThis.slider = new Slider(".js-slider");
+});

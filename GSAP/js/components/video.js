@@ -8,6 +8,7 @@ export class Video extends Component {
   duration = 0;
   activated = false;
   readyMarked = false;
+  static HARD_CODED_DURATION = 25.066667;
 
   constructor(el) {
     super(el);
@@ -18,28 +19,17 @@ export class Video extends Component {
 
     this.videoSrc = this.video.getAttribute("src");
     this.contents = this.refs.content;
+
+    console.log(this.duration);
+
+    this.setup();
   }
 
-  async setup() {
-    await this.initVideo();
-    this.handleReady();
-  }
-
-  async initVideo() {
-    return new Promise((resolve) => {
-      const onReady = () => resolve();
-
-      // If metadata is already available, continue immediately.
-      if (this.video.readyState >= 1 && this.video.duration) {
-        resolve();
-        return;
-      }
-
-      this.video.addEventListener("loadedmetadata", onReady, { once: true });
-      if (!this.video.getAttribute("src")) {
-        this.video.src = this.videoSrc;
-      }
-    });
+  setup() {
+    if (!this.duration) {
+      this.duration = Video.HARD_CODED_DURATION;
+    }
+    this.handleReady(true);
   }
 
   once(el, event, fn, opts) {
@@ -51,8 +41,10 @@ export class Video extends Component {
     return onceFn;
   }
 
-  handleReady() {
-    this.duration = this.video.duration || 0;
+  handleReady(forceDuration = false) {
+    if (!forceDuration) {
+      this.duration = this.video.duration || 0;
+    }
     if (!this.duration) {
       this.video.addEventListener("loadedmetadata", () => this.handleReady(), {
         once: true,
@@ -89,7 +81,7 @@ export class Video extends Component {
     ScrollTrigger.create({
       trigger: this.el,
       start: "top top",
-      end: () => `+=${this.duration * 320}`,
+      end: () => `+=${25.066667 * 320}`,
       scrub: 1,
       pin: true,
       onEnter: () => {
@@ -139,7 +131,7 @@ export class Video extends Component {
     if (!this.contentSegments.length) return;
     // find current segment by progress
     const active = this.contentSegments.find(
-      (seg) => progress >= seg.start && progress < seg.end
+      (seg) => progress >= seg.start && progress < seg.end,
     );
     this.contentSegments.forEach((seg) => {
       const visible = seg === active;
@@ -159,7 +151,7 @@ export class Video extends Component {
     // Play/pause to unlock currentTime updates on iOS.
     const p = this.video.play();
     if (p && typeof p.then === "function") {
-      p.then(() => this.video.pause()).catch(() => { });
+      p.then(() => this.video.pause()).catch(() => {});
     } else {
       this.video.pause();
     }
@@ -173,3 +165,8 @@ export class Video extends Component {
     if (loader) loader.style.display = "none";
   }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Keep a reference to avoid "no-new" lint and allow debugging.
+  globalThis.video = new Video(".js-video");
+});
